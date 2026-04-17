@@ -17,7 +17,7 @@
     const darkMode = persisted('DARK_PREFERENCE', false);
 
     const themes = [
-        { id: 'himmel', name: 'Himmel (Lake)', icon: Sword },
+        { id: 'himmel', name: 'Himmel (Baby Blue)', icon: Sword },
         { id: 'frieren', name: 'Frieren (Ivory)', icon: WandSparkles },
         { id: 'fern', name: 'Fern (Violet)', icon: Sparkles },
         { id: 'stark', name: 'Stark (Crimson)', icon: Axe }
