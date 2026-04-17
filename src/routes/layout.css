@@ -6,7 +6,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* THEME SYSTEM: HIMMEL (FROZEN LAKE) */
+/* THEME SYSTEM: HIMMEL (BLUE MOON WEED) */
 :root, [data-theme="himmel"] {
 	--background: #F4F9FD;
 	--foreground: #1E293B;
@@ -46,53 +46,131 @@
 	--ring: #38BDF8;
 }
 
-/* THEME SYSTEM: FRIEREN (MAGE WHITE)
-   Palette: Ivory, Antique Gold, and Deep Crimson accents.
-*/
+/* THEME SYSTEM: FRIEREN (GREAT MAGE) */
 [data-theme="frieren"] {
-	--background: #FAEBE8;        /* Soft Ivory/Warm White */
-	--foreground: #47180E;        /* Deep Scholarly Brown */
-	--card: #FFFFFF;
-	--card-foreground: #47180E;
-	--popover: #FFFFFF;
-	--popover-foreground: #47180E;
-
-	--primary: #D70601;           /* Signature Crimson Red */
-	--primary-foreground: #FFFFFF;
-
-	--secondary: #D7B264;         /* Antique Gold */
-	--secondary-foreground: #47180E;
-
-	--muted: #F2DEDC;
-	--muted-foreground: #A7844C;
-
-	--accent: #A7844C;            /* Burnished Gold/Bronze */
+	--background: #FDFDFB;
+	--foreground: #1A1C1E;
+	--card: #F1F3F4;
+	--card-foreground: #1A1C1E;
+	--popover: #FDFDFB;
+	--popover-foreground: #1A1C1E;
+	--primary: #D7B264;           /* Antique Gold */
+	--primary-foreground: #1A1C1E;
+	--secondary: #4A5568;         /* Scholarly Slate */
+	--secondary-foreground: #FDFDFB;
+	--muted: #EDF2F7;
+	--muted-foreground: #718096;
+	--accent: #D70601;            /* Crimson Red */
 	--accent-foreground: #FFFFFF;
-
-	--destructive: #D70601;
+	--destructive: #991B1B;
 	--destructive-foreground: #FFFFFF;
-
-	--border: #E8D1CE;
-	--input: #E8D1CE;
-	--ring: #D70601;
-
-	--radius: 0.5rem;             /* Sharper, more "classic" feel */
+	--border: #CBD5E0;
+	--input: #CBD5E0;
+	--ring: #D7B264;
+	--radius: 0.5rem;
 }
 
 [data-theme="frieren"].dark {
-	--background: #1A0A08;        /* Near-black Deep Brown */
-	--foreground: #FAEBE8;
-	--card: #261210;
-	--card-foreground: #FAEBE8;
-	--primary: #FF3B30;           /* Vibrant Magic Red */
+	--background: #141313;
+	--foreground: #E2E1E4;
+	--card: #1C1D1F;
+	--card-foreground: #E2E1E4;
+	--primary: #90C6A7;           /* Sage Green */
+	--primary-foreground: #141313;
+	--secondary: #D7B264;
+	--secondary-foreground: #141313;
+	--accent: #D70601;
+	--border: #3D3F41;
+	--input: #3D3F41;
+	--ring: #90C6A7;
+}
+
+/* THEME SYSTEM: FERN (ZOLTRAAK SPAMMER) I GOT A RAYGUN IN MY HAND POWPOWPOWPOWPOW */
+[data-theme="fern"] {
+	--background: #F9F7FD;        /* Pale Lavender White */
+	--foreground: #2D2438;        /* Deep Eggplant */
+	--card: #FFFFFF;
+	--card-foreground: #2D2438;
+	--popover: #FFFFFF;
+	--popover-foreground: #2D2438;
+
+	--primary: #6B4E91;           /* Fern's Purple Robe */
 	--primary-foreground: #FFFFFF;
-	--secondary: #A7844C;
-	--secondary-foreground: #FAEBE8;
-	--accent: #D7B264;
-	--accent-foreground: #1A0A08;
-	--border: #3D1C18;
-	--input: #3D1C18;
-	--ring: #FF3B30;
+
+	--secondary: #E9E1F5;         /* Soft Lavender */
+	--secondary-foreground: #4A3B5C;
+
+	--muted: #F0EDF5;
+	--muted-foreground: #8B7FA3;
+
+	--accent: #A78BFA;            /* Magical Glow Violet */
+	--accent-foreground: #FFFFFF;
+
+	--destructive: #E11D48;
+	--destructive-foreground: #FFFFFF;
+
+	--border: #D8D1E3;            /* Silvered Lavender */
+	--input: #D8D1E3;
+	--ring: #6B4E91;
+
+	--radius: 0.6rem;
+}
+
+[data-theme="fern"].dark {
+	--background: #1A1621;        /* Deep Nocturnal Purple */
+	--foreground: #E9E1F5;
+	--card: #251F2E;
+	--card-foreground: #E9E1F5;
+	--primary: #A78BFA;           /* Vibrant Spell Violet */
+	--primary-foreground: #1A1621;
+	--secondary: #4A3B5C;
+	--secondary-foreground: #E9E1F5;
+	--accent: #DDD6FE;
+	--border: #362E40;
+	--ring: #A78BFA;
+}
+
+/* THEME SYSTEM: STARK (WARRIOR CRIMSON) my goat */
+[data-theme="stark"] {
+	--background: #FDFBFA;        /* Clean Bone White */
+	--foreground: #1C1917;        /* Coal Black */
+	--card: #F5F5F4;
+	--card-foreground: #1C1917;
+
+	--primary: #991B1B;           /* Stark's Jacket Red */
+	--primary-foreground: #FFFFFF;
+
+	--secondary: #44403C;         /* Armor Charcoal */
+	--secondary-foreground: #F5F5F4;
+
+	--muted: #E7E5E4;
+	--muted-foreground: #78716C;
+
+	--accent: #D97706;            /* Bronze/Axe Highlight */
+	--accent-foreground: #FFFFFF;
+
+	--destructive: #7F1D1D;
+	--destructive-foreground: #FFFFFF;
+
+	--border: #D6D3D1;            /* Stone Grey Border */
+	--input: #D6D3D1;
+	--ring: #991B1B;
+
+	--radius: 0.4rem;             /* Rugged, sharper corners */
+}
+
+[data-theme="stark"].dark {
+	--background: #0C0A09;        /* Night Campfire Black */
+	--foreground: #F5F5F4;
+	--card: #1C1917;
+	--card-foreground: #F5F5F4;
+	--primary: #EF4444;           /* Raging Crimson */
+	--primary-foreground: #FFFFFF;
+	--secondary: #44403C;
+	--secondary-foreground: #F5F5F4;
+	--accent: #F59E0B;            /* Glowing Ember Gold */
+	--border: #292524;
+	--ring: #EF4444;
 }
 
 @theme inline {

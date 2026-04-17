@@ -14,12 +14,14 @@
     import AtSign from 'lucide-svelte/icons/at-sign';
     import SunMoon from 'lucide-svelte/icons/sun-moon';
     import BookOpen from 'lucide-svelte/icons/book-open';
-    import Wand2 from 'lucide-svelte/icons/wand-sparkles'; // Icon for Style Toggle
+    import WandSparkles from 'lucide-svelte/icons/wand-sparkles';
     import Sword from 'lucide-svelte/icons/sword';
+    import Axe from 'lucide-svelte/icons/axe';
+    import Sparkles from 'lucide-svelte/icons/sparkles';
 
     // Theme Stores
     const darkMode = persisted('DARK_PREFERENCE', false);
-    const styleTheme = persisted('STYLE_PREFERENCE', 'himmel'); // 'himmel' or 'frieren'
+    const styleTheme = persisted('STYLE_PREFERENCE', 'himmel');
 
     const isActive = (path: string) =>
         path === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(path);
@@ -30,28 +32,27 @@
         { href: '/saved', label: 'Saved', icon: Heart }
     ];
 
-    // Toggle Light/Dark
     function toggleDarkMode() {
         darkMode.update(n => !n);
     }
 
-    // Toggle Character Style (Himmel <-> Frieren)
-    function toggleStyle() {
-        styleTheme.update(s => s === 'himmel' ? 'frieren' : 'himmel');
+    // Cycle through themes: Himmel -> Frieren -> Fern -> Stark
+    function cycleStyle() {
+        const themes = ['himmel', 'frieren', 'fern', 'stark'];
+        styleTheme.update(current => {
+            const nextIndex = (themes.indexOf(current) + 1) % themes.length;
+            return themes[nextIndex];
+        });
     }
 
-    // Effect to update DOM attributes for CSS variable injection
     $effect(() => {
         if (typeof document !== 'undefined') {
-            // Apply Dark/Light
             document.documentElement.classList.toggle('dark', $darkMode);
-            // Apply Character Theme
             document.documentElement.setAttribute('data-theme', $styleTheme);
         }
     });
 
     onMount(() => {
-        // Initial system check for Dark Mode
         if (localStorage.getItem('DARK_PREFERENCE') === null) {
             const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             darkMode.set(systemPrefersDark);
@@ -96,19 +97,23 @@
             <AtSign size={20} />
         </Button>
 
-        <!-- Toggle Style (Himmel/Frieren) -->
+        <!-- Toggle Style (Dynamic Icon based on character) -->
         <Button
                 variant="outline"
                 size="icon"
-                title="Switch Style ({$styleTheme === 'himmel' ? 'Himmel' : 'Frieren'})"
-                aria-label="Toggle Style"
+                title="Style: {$styleTheme.charAt(0).toUpperCase() + $styleTheme.slice(1)}"
+                aria-label="Cycle Style"
                 class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors"
-                onclick={toggleStyle}
+                onclick={cycleStyle}
         >
             {#if $styleTheme === 'himmel'}
                 <Sword size={20} />
+            {:else if $styleTheme === 'frieren'}
+                <WandSparkles size={20} />
+            {:else if $styleTheme === 'fern'}
+                <Sparkles size={20} />
             {:else}
-                <Wand2 size={20} />
+                <Axe size={20} />
             {/if}
         </Button>
 
