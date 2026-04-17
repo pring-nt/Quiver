@@ -1,7 +1,8 @@
 <script lang="ts">
     import { page } from '$app/state';
+    import { onMount } from 'svelte';
+    import { persisted } from 'svelte-persisted-store';
 
-    // Import Shadcn Button and the variant utility
     import { Button, buttonVariants } from '$lib/components/ui/button';
 
     import BowArrow from 'lucide-svelte/icons/bow-arrow';
@@ -14,7 +15,8 @@
     import SunMoon from 'lucide-svelte/icons/sun-moon';
     import BookOpen from 'lucide-svelte/icons/book-open';
 
-    // Exact match for the root ('/') to prevent highlighting on every page, prefix match for others
+    const darkMode = persisted('DARK_PREFERENCE', false);
+
     const isActive = (path: string) =>
         path === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(path);
 
@@ -24,16 +26,27 @@
         { href: '/saved', label: 'Saved', icon: Heart }
     ];
 
-    const utilities = [
-        { title: 'Announcements', icon: Megaphone },
-        { title: 'Developer Socials', icon: AtSign },
-        { title: 'Toggle Theme', icon: SunMoon },
-        { title: 'Site Tutorial', icon: BookOpen }
-    ];
+    function toggleTheme() {
+        darkMode.update(n => !n);
+    }
+
+    // Reactive effect to update the DOM whenever the store changes
+    $effect(() => {
+        if (typeof document !== 'undefined') {
+            document.documentElement.classList.toggle('dark', $darkMode);
+        }
+    });
+
+    onMount(() => {
+        // If the user has never visited, default to their system preference
+        if (localStorage.getItem('DARK_PREFERENCE') === null) {
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            darkMode.set(systemPrefersDark);
+        }
+    });
 </script>
 
 <header class="py-4 flex items-center justify-between gap-2 w-full border-b border-border px-8 xl:px-16 bg-background">
-
     <!-- Brand -->
     <a href="/" class="flex gap-2 font-extrabold text-lg items-center tracking-tight transition-opacity hover:opacity-80">
         <div class="p-2 bg-primary rounded-lg flex justify-center items-center h-10 w-10 text-primary-foreground">
@@ -61,10 +74,27 @@
 
     <!-- Utility Buttons -->
     <div class="hidden xl:flex flex-row gap-2">
-        {#each utilities as { title, icon: Icon }}
-            <Button variant="outline" size="icon" {title} aria-label={title} class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
-                <Icon size={20} />
-            </Button>
-        {/each}
+        <Button variant="outline" size="icon" title="Announcements" aria-label="Announcements" class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
+            <Megaphone size={20} />
+        </Button>
+
+        <Button variant="outline" size="icon" title="Developer Socials" aria-label="Developer Socials" class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
+            <AtSign size={20} />
+        </Button>
+
+        <Button
+                variant="outline"
+                size="icon"
+                title="Toggle Theme"
+                aria-label="Toggle Theme"
+                class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors"
+                onclick={toggleTheme}
+        >
+            <SunMoon size={20} />
+        </Button>
+
+        <Button variant="outline" size="icon" title="Site Tutorial" aria-label="Site Tutorial" class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
+            <BookOpen size={20} />
+        </Button>
     </div>
 </header>
