@@ -31,6 +31,7 @@
 		"vite": "^8.0.7"
 	},
 	"dependencies": {
+		"@fontsource-variable/manrope": "^5.2.8",
 		"@tanstack/svelte-table": "^8.21.3",
 		"svelte-persisted-store": "^0.12.0",
 		"zod": "^4.3.6"
