@@ -1,9 +1,7 @@
 <script lang="ts">
     import { page } from '$app/state';
-    import { onMount } from 'svelte';
-    import { persisted } from 'svelte-persisted-store';
-
     import { Button, buttonVariants } from '$lib/components/ui/button';
+    import ThemeDropdown from '$lib/components/dropdowns/ThemeDropdown.svelte';
 
     import BowArrow from 'lucide-svelte/icons/bow-arrow';
     import LayoutList from 'lucide-svelte/icons/layout-list';
@@ -12,16 +10,7 @@
     import Menu from 'lucide-svelte/icons/menu';
     import Megaphone from 'lucide-svelte/icons/megaphone';
     import AtSign from 'lucide-svelte/icons/at-sign';
-    import SunMoon from 'lucide-svelte/icons/sun-moon';
     import BookOpen from 'lucide-svelte/icons/book-open';
-    import WandSparkles from 'lucide-svelte/icons/wand-sparkles';
-    import Sword from 'lucide-svelte/icons/sword';
-    import Axe from 'lucide-svelte/icons/axe';
-    import Sparkles from 'lucide-svelte/icons/sparkles';
-
-    // Theme Stores
-    const darkMode = persisted('DARK_PREFERENCE', false);
-    const styleTheme = persisted('STYLE_PREFERENCE', 'himmel');
 
     const isActive = (path: string) =>
         path === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(path);
@@ -31,33 +20,6 @@
         { href: '/schedules', label: 'Schedules', icon: CalendarRange },
         { href: '/saved', label: 'Saved', icon: Heart }
     ];
-
-    function toggleDarkMode() {
-        darkMode.update(n => !n);
-    }
-
-    // Cycle through themes: Himmel -> Frieren -> Fern -> Stark
-    function cycleStyle() {
-        const themes = ['himmel', 'frieren', 'fern', 'stark'];
-        styleTheme.update(current => {
-            const nextIndex = (themes.indexOf(current) + 1) % themes.length;
-            return themes[nextIndex];
-        });
-    }
-
-    $effect(() => {
-        if (typeof document !== 'undefined') {
-            document.documentElement.classList.toggle('dark', $darkMode);
-            document.documentElement.setAttribute('data-theme', $styleTheme);
-        }
-    });
-
-    onMount(() => {
-        if (localStorage.getItem('DARK_PREFERENCE') === null) {
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            darkMode.set(systemPrefersDark);
-        }
-    });
 </script>
 
 <header class="py-4 flex items-center justify-between gap-2 w-full border-b border-border px-8 xl:px-16 bg-background">
@@ -97,37 +59,8 @@
             <AtSign size={20} />
         </Button>
 
-        <!-- Toggle Style (Dynamic Icon based on character) -->
-        <Button
-                variant="outline"
-                size="icon"
-                title="Style: {$styleTheme.charAt(0).toUpperCase() + $styleTheme.slice(1)}"
-                aria-label="Cycle Style"
-                class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors"
-                onclick={cycleStyle}
-        >
-            {#if $styleTheme === 'himmel'}
-                <Sword size={20} />
-            {:else if $styleTheme === 'frieren'}
-                <WandSparkles size={20} />
-            {:else if $styleTheme === 'fern'}
-                <Sparkles size={20} />
-            {:else}
-                <Axe size={20} />
-            {/if}
-        </Button>
-
-        <!-- Toggle Dark Mode -->
-        <Button
-                variant="outline"
-                size="icon"
-                title="Toggle Theme"
-                aria-label="Toggle Theme"
-                class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors"
-                onclick={toggleDarkMode}
-        >
-            <SunMoon size={20} />
-        </Button>
+        <!-- Abstracted Style & Appearance Dropdown -->
+        <ThemeDropdown />
 
         <Button variant="outline" size="icon" title="Site Tutorial" aria-label="Site Tutorial" class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
             <BookOpen size={20} />
