@@ -35,6 +35,8 @@
 	--foreground: #E2E8F0;
 	--card: #111A2E;
 	--card-foreground: #E2E8F0;
+	--popover: #111A2E;
+	--popover-foreground: #E2E8F0;
 	--primary: #38BDF8;
 	--primary-foreground: #0B1120;
 	--secondary: #1E293B;
@@ -54,13 +56,13 @@
 	--card-foreground: #1A1C1E;
 	--popover: #FDFDFB;
 	--popover-foreground: #1A1C1E;
-	--primary: #D7B264;           /* Antique Gold */
+	--primary: #D7B264;
 	--primary-foreground: #1A1C1E;
-	--secondary: #4A5568;         /* Scholarly Slate */
+	--secondary: #4A5568;
 	--secondary-foreground: #FDFDFB;
 	--muted: #EDF2F7;
 	--muted-foreground: #718096;
-	--accent: #D70601;            /* Crimson Red */
+	--accent: #D70601;
 	--accent-foreground: #FFFFFF;
 	--destructive: #991B1B;
 	--destructive-foreground: #FFFFFF;
@@ -75,11 +77,14 @@
 	--foreground: #E2E1E4;
 	--card: #1C1D1F;
 	--card-foreground: #E2E1E4;
-	--primary: #90C6A7;           /* Sage Green */
+	--popover: #1C1D1F;
+	--popover-foreground: #E2E1E4;
+	--primary: #90C6A7;
 	--primary-foreground: #141313;
 	--secondary: #D7B264;
 	--secondary-foreground: #141313;
 	--accent: #D70601;
+	--accent-foreground: #FFFFFF;
 	--border: #3D3F41;
 	--input: #3D3F41;
 	--ring: #90C6A7;
@@ -87,89 +92,85 @@
 
 /* THEME SYSTEM: FERN (ZOLTRAAK SPAMMER) I GOT A RAYGUN IN MY HAND POWPOWPOWPOWPOW */
 [data-theme="fern"] {
-	--background: #F9F7FD;        /* Pale Lavender White */
-	--foreground: #2D2438;        /* Deep Eggplant */
+	--background: #F9F7FD;
+	--foreground: #2D2438;
 	--card: #FFFFFF;
 	--card-foreground: #2D2438;
 	--popover: #FFFFFF;
 	--popover-foreground: #2D2438;
-
-	--primary: #6B4E91;           /* Fern's Purple Robe */
+	--primary: #6B4E91;
 	--primary-foreground: #FFFFFF;
-
-	--secondary: #E9E1F5;         /* Soft Lavender */
+	--secondary: #E9E1F5;
 	--secondary-foreground: #4A3B5C;
-
 	--muted: #F0EDF5;
 	--muted-foreground: #8B7FA3;
-
-	--accent: #A78BFA;            /* Magical Glow Violet */
+	--accent: #A78BFA;
 	--accent-foreground: #FFFFFF;
-
 	--destructive: #E11D48;
 	--destructive-foreground: #FFFFFF;
-
-	--border: #D8D1E3;            /* Silvered Lavender */
+	--border: #D8D1E3;
 	--input: #D8D1E3;
 	--ring: #6B4E91;
-
 	--radius: 0.6rem;
 }
 
 [data-theme="fern"].dark {
-	--background: #1A1621;        /* Deep Nocturnal Purple */
+	--background: #1A1621;
 	--foreground: #E9E1F5;
 	--card: #251F2E;
 	--card-foreground: #E9E1F5;
-	--primary: #A78BFA;           /* Vibrant Spell Violet */
+	--popover: #251F2E;
+	--popover-foreground: #E9E1F5;
+	--primary: #A78BFA;
 	--primary-foreground: #1A1621;
 	--secondary: #4A3B5C;
 	--secondary-foreground: #E9E1F5;
 	--accent: #DDD6FE;
+	--accent-foreground: #1A1621;
 	--border: #362E40;
+	--input: #362E40;
 	--ring: #A78BFA;
 }
 
-/* THEME SYSTEM: STARK (WARRIOR CRIMSON) my goat */
+/* THEME SYSTEM: STARK (WARRIOR CRIMSON) */
 [data-theme="stark"] {
-	--background: #FDFBFA;        /* Clean Bone White */
-	--foreground: #1C1917;        /* Coal Black */
+	--background: #FDFBFA;
+	--foreground: #1C1917;
 	--card: #F5F5F4;
 	--card-foreground: #1C1917;
-
-	--primary: #991B1B;           /* Stark's Jacket Red */
-	--primary-foreground: #FFFFFF;
-
-	--secondary: #44403C;         /* Armor Charcoal */
-	--secondary-foreground: #F5F5F4;
-
-	--muted: #E7E5E4;
-	--muted-foreground: #78716C;
-
-	--accent: #D97706;            /* Bronze/Axe Highlight */
-	--accent-foreground: #FFFFFF;
-
-	--destructive: #7F1D1D;
-	--destructive-foreground: #FFFFFF;
-
-	--border: #D6D3D1;            /* Stone Grey Border */
-	--input: #D6D3D1;
-	--ring: #991B1B;
-
-	--radius: 0.4rem;             /* Rugged, sharper corners */
-}
-
-[data-theme="stark"].dark {
-	--background: #0C0A09;        /* Night Campfire Black */
-	--foreground: #F5F5F4;
-	--card: #1C1917;
-	--card-foreground: #F5F5F4;
-	--primary: #EF4444;           /* Raging Crimson */
+	--popover: #FFFFFF;
+	--popover-foreground: #1C1917;
+	--primary: #B91C1C;
 	--primary-foreground: #FFFFFF;
 	--secondary: #44403C;
 	--secondary-foreground: #F5F5F4;
-	--accent: #F59E0B;            /* Glowing Ember Gold */
+	--muted: #E7E5E4;
+	--muted-foreground: #78716C;
+	--accent: #EA580C;
+	--accent-foreground: #FFFFFF;
+	--destructive: #7F1D1D;
+	--destructive-foreground: #FFFFFF;
+	--border: #D6D3D1;
+	--input: #D6D3D1;
+	--ring: #B91C1C;
+	--radius: 0.4rem;
+}
+
+[data-theme="stark"].dark {
+	--background: #0C0A09;
+	--foreground: #F5F5F4;
+	--card: #1C1917;
+	--card-foreground: #F5F5F4;
+	--popover: #1C1917;
+	--popover-foreground: #F5F5F4;
+	--primary: #EF4444;
+	--primary-foreground: #FFFFFF;
+	--secondary: #44403C;
+	--secondary-foreground: #F5F5F4;
+	--accent: #F97316;
+	--accent-foreground: #0C0A09;
 	--border: #292524;
+	--input: #292524;
 	--ring: #EF4444;
 }
 
