@@ -34,7 +34,7 @@
 
 <header class="py-4 flex items-center justify-between gap-2 w-full border-b border-border px-8 xl:px-16 bg-background">
 
-    <!-- Brand: Now links to root -->
+    <!-- Brand -->
     <a href="/" class="flex gap-2 font-extrabold text-lg items-center tracking-tight transition-opacity hover:opacity-80">
         <div class="p-2 bg-primary rounded-lg flex justify-center items-center h-10 w-10 text-primary-foreground">
             <BowArrow size={24} />
@@ -42,10 +42,10 @@
         Quiver
     </a>
 
-    <!-- Navigation Links-->
+    <!-- Navigation Links -->
     <nav class="hidden xl:flex gap-2 absolute left-1/2 -translate-x-1/2">
         {#each navLinks as { href, label, icon: Icon }}
-            <a {href} class="{buttonVariants({ variant: isActive(href) ? 'default' : 'ghost' })} gap-2">
+            <a {href} class="{buttonVariants({ variant: isActive(href) ? 'default' : 'ghost' })} gap-2 hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
                 <Icon size={20} />
                 {label}
             </a>
@@ -54,15 +54,15 @@
 
     <!-- Mobile Menu Toggle -->
     <div class="xl:hidden">
-        <Button variant="outline" size="icon" aria-label="Menu">
+        <Button variant="outline" size="icon" aria-label="Menu" class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
             <Menu size={20} />
         </Button>
     </div>
 
-    <!-- Utility Buttons-->
+    <!-- Utility Buttons -->
     <div class="hidden xl:flex flex-row gap-2">
         {#each utilities as { title, icon: Icon }}
-            <Button variant="outline" size="icon" {title} aria-label={title}>
+            <Button variant="outline" size="icon" {title} aria-label={title} class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
                 <Icon size={20} />
             </Button>
         {/each}
