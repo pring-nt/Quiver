@@ -14,8 +14,12 @@
     import AtSign from 'lucide-svelte/icons/at-sign';
     import SunMoon from 'lucide-svelte/icons/sun-moon';
     import BookOpen from 'lucide-svelte/icons/book-open';
+    import Wand2 from 'lucide-svelte/icons/wand-sparkles'; // Icon for Style Toggle
+    import Sword from 'lucide-svelte/icons/sword';
 
+    // Theme Stores
     const darkMode = persisted('DARK_PREFERENCE', false);
+    const styleTheme = persisted('STYLE_PREFERENCE', 'himmel'); // 'himmel' or 'frieren'
 
     const isActive = (path: string) =>
         path === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(path);
@@ -26,19 +30,28 @@
         { href: '/saved', label: 'Saved', icon: Heart }
     ];
 
-    function toggleTheme() {
+    // Toggle Light/Dark
+    function toggleDarkMode() {
         darkMode.update(n => !n);
     }
 
-    // Reactive effect to update the DOM whenever the store changes
+    // Toggle Character Style (Himmel <-> Frieren)
+    function toggleStyle() {
+        styleTheme.update(s => s === 'himmel' ? 'frieren' : 'himmel');
+    }
+
+    // Effect to update DOM attributes for CSS variable injection
     $effect(() => {
         if (typeof document !== 'undefined') {
+            // Apply Dark/Light
             document.documentElement.classList.toggle('dark', $darkMode);
+            // Apply Character Theme
+            document.documentElement.setAttribute('data-theme', $styleTheme);
         }
     });
 
     onMount(() => {
-        // If the user has never visited, default to their system preference
+        // Initial system check for Dark Mode
         if (localStorage.getItem('DARK_PREFERENCE') === null) {
             const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             darkMode.set(systemPrefersDark);
@@ -74,6 +87,7 @@
 
     <!-- Utility Buttons -->
     <div class="hidden xl:flex flex-row gap-2">
+
         <Button variant="outline" size="icon" title="Announcements" aria-label="Announcements" class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
             <Megaphone size={20} />
         </Button>
@@ -82,13 +96,30 @@
             <AtSign size={20} />
         </Button>
 
+        <!-- Toggle Style (Himmel/Frieren) -->
+        <Button
+                variant="outline"
+                size="icon"
+                title="Switch Style ({$styleTheme === 'himmel' ? 'Himmel' : 'Frieren'})"
+                aria-label="Toggle Style"
+                class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors"
+                onclick={toggleStyle}
+        >
+            {#if $styleTheme === 'himmel'}
+                <Sword size={20} />
+            {:else}
+                <Wand2 size={20} />
+            {/if}
+        </Button>
+
+        <!-- Toggle Dark Mode -->
         <Button
                 variant="outline"
                 size="icon"
                 title="Toggle Theme"
                 aria-label="Toggle Theme"
                 class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors"
-                onclick={toggleTheme}
+                onclick={toggleDarkMode}
         >
             <SunMoon size={20} />
         </Button>
