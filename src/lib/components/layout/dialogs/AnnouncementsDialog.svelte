@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {BaseDialog, AnnouncementCard} from "$lib/components/layout/dialogs";
+    import {BaseDialog, DialogCard} from "$lib/components/layout/dialogs/index";
     import { Button } from '$lib/components/ui/button';
     import { Megaphone } from 'lucide-svelte';
     const announcements = [
@@ -36,7 +36,7 @@
     <!-- The Content -->
     <div class="gap-4 flex flex-col pb-4">
         {#each announcements as item, i}
-            <AnnouncementCard
+            <DialogCard
                     number={i + 1}
                     title={item.title}
                     description={item.description}
