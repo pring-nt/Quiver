@@ -1,9 +1,10 @@
 <script lang="ts">
     import { page } from '$app/state';
-    import { Button, buttonVariants } from '$lib/components/ui/button';
+    import { buttonVariants } from '$lib/components/ui/button';
     import {ThemeDropdown} from '$lib/components/layout/header';
 
-    import {BowArrow, LayoutList, CalendarRange, Heart, Menu} from 'lucide-svelte'
+    import {BowArrow, LayoutList, CalendarRange, Heart} from 'lucide-svelte'
+    import {MobileMenu} from "$lib/components/layout/sidebar";
     import {AnnouncementsDialog, SocialsDialog, TutorialDialog} from "$lib/components/layout/dialogs";
 
     const isActive = (path: string) =>
@@ -18,7 +19,7 @@
 
 <header class="py-4 flex items-center justify-between gap-2 w-full border-b border-border px-8 xl:px-16 bg-background">
     <!-- Brand -->
-    <a href="/static" class="flex gap-2 font-extrabold text-lg items-center tracking-tight transition-opacity hover:opacity-80">
+    <a href="/" class="flex gap-2 font-extrabold text-lg items-center tracking-tight transition-opacity hover:opacity-80">
         <div class="p-2 bg-primary rounded-lg flex justify-center items-center h-10 w-10 text-primary-foreground">
             <BowArrow size={24} />
         </div>
@@ -36,11 +37,7 @@
     </nav>
 
     <!-- Mobile Menu Toggle -->
-    <div class="xl:hidden">
-        <Button variant="outline" size="icon" aria-label="Menu" class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
-            <Menu size={20} />
-        </Button>
-    </div>
+    <MobileMenu {navLinks} {isActive} />
 
     <!-- Utility Buttons -->
     <div class="hidden xl:flex flex-row gap-2">

@@ -7,6 +7,8 @@
 
     import { WandSparkles, Sword, Axe, Sparkles, Check, SunMoon } from 'lucide-svelte';
 
+    let { align = "end" }: { align?: "start" | "center" | "end" } = $props();
+
     // Both appearance stores are now managed here
     const styleTheme = persisted('STYLE_PREFERENCE', 'himmel');
     const darkMode = persisted('DARK_PREFERENCE', false);
@@ -53,7 +55,7 @@
         <span class="sr-only">Toggle appearance settings</span>
     </DropdownMenu.Trigger>
 
-    <DropdownMenu.Content align="end" class="w-48">
+    <DropdownMenu.Content {align} class="w-48">
         <DropdownMenu.Label>Appearance</DropdownMenu.Label>
         <DropdownMenu.Separator />
 
