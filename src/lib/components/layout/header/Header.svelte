@@ -44,13 +44,9 @@
 
     <!-- Utility Buttons -->
     <div class="hidden xl:flex flex-row gap-2">
-
         <AnnouncementsDialog />
-
         <SocialsDialog />
-
         <ThemeDropdown />
-
         <TutorialDialog />
     </div>
 </header>

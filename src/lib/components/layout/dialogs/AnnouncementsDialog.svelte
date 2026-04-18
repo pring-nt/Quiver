@@ -4,7 +4,7 @@
     import { Megaphone } from 'lucide-svelte';
     const announcements = [
         {
-            title: "Custom Sousou no Frieren Themes!",
+            title: "Custom Frieren: Beyond Journey's End Themes!",
             description: "Choose between Himmel, Frieren, Fern, and Stark to change the site appearance. " +
                          "Each with their own respective dark modes"
         },
