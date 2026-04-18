@@ -40,7 +40,8 @@
                     <a
                             {href}
                             onclick={() => isMobileMenuOpen = false}
-                            class="{buttonVariants({ variant: isActive(href) ? 'default' : 'ghost' })} h-10 px-4 py-2 flex gap-2 items-center font-medium justify-start w-full"
+                            class="{buttonVariants({ variant: isActive(href) ? 'default' : 'ghost' })} h-10 px-4 py-2 flex gap-2 items-center font-medium justify-start w-full
+                                                                                                       hover:!bg-accent/80 hover:!text-accent-foreground transition-colors"
                     >
                         <Icon size={20} />
                         {label}
