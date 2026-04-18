@@ -1,8 +1,7 @@
 <script lang="ts">
     import * as Dialog from '$lib/components/ui/dialog';
     import { ScrollArea } from '$lib/components/ui/scroll-area';
-    import type { Snippet, Component } from 'svelte';
-    import type { IconProps } from 'lucide-svelte';
+    import type { Snippet } from 'svelte';
 
     let {
         title,
@@ -13,7 +12,7 @@
     }: {
         title: string;
         description?: string;
-        icon?: Component<IconProps>;
+        icon?: any;
         trigger: Snippet; // the button
         children: Snippet; // the content
     } = $props();
