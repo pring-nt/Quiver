@@ -1,7 +1,7 @@
 <script lang="ts">
     import { page } from '$app/state';
     import { Button, buttonVariants } from '$lib/components/ui/button';
-    import ThemeDropdown from '$lib/components/dropdowns/ThemeDropdown.svelte';
+    import ThemeDropdown from '$lib/components/layout/header/ThemeDropdown.svelte';
 
     import BowArrow from 'lucide-svelte/icons/bow-arrow';
     import LayoutList from 'lucide-svelte/icons/layout-list';
@@ -24,7 +24,7 @@
 
 <header class="py-4 flex items-center justify-between gap-2 w-full border-b border-border px-8 xl:px-16 bg-background">
     <!-- Brand -->
-    <a href="/" class="flex gap-2 font-extrabold text-lg items-center tracking-tight transition-opacity hover:opacity-80">
+    <a href="/static" class="flex gap-2 font-extrabold text-lg items-center tracking-tight transition-opacity hover:opacity-80">
         <div class="p-2 bg-primary rounded-lg flex justify-center items-center h-10 w-10 text-primary-foreground">
             <BowArrow size={24} />
         </div>

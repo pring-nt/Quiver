@@ -1,1 +1,1 @@
-Im gonna kill myself
+Vibecoded better than archers hub
