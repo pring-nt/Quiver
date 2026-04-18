@@ -1,7 +1,7 @@
 <script lang="ts">
     import {BaseDialog, SocialLink} from '$lib/components/layout/dialogs'
     import { Button } from '$lib/components/ui/button';
-    import { AtSign, Code, MessageSquare } from 'lucide-svelte';
+    import { AtSign, Code, MessageSquare, GitFork } from 'lucide-svelte';
 
     const socialLinks = [
         {
@@ -13,7 +13,12 @@
             label: "Instagram",
             href: "https://www.instagram.com/nate_pring/",
             icon: MessageSquare
-        }
+        },
+        {
+            label: "Site Inspiration: Schedaddle",
+            href: "https://github.com/CyberEzpertz/Schedaddle",
+            icon: GitFork
+        },
     ];
 </script>
 
