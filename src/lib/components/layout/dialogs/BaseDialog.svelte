@@ -12,7 +12,7 @@
     }: {
         title: string;
         description?: string;
-        icon?: Component;
+        icon?: Component<any>;
         trigger: Snippet; // the button
         children: Snippet; // the content
     } = $props();
