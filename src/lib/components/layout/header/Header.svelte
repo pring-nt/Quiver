@@ -1,10 +1,10 @@
 <script lang="ts">
     import { page } from '$app/state';
     import { Button, buttonVariants } from '$lib/components/ui/button';
-    import ThemeDropdown from '$lib/components/layout/header/ThemeDropdown.svelte';
+    import {ThemeDropdown} from '$lib/components/layout/header';
 
-    import {BowArrow, LayoutList, CalendarRange, Heart, Menu, Megaphone, AtSign, BookOpen} from 'lucide-svelte'
-    import {AnnouncementsDialog} from "$lib/components/layout/dialogs";
+    import {BowArrow, LayoutList, CalendarRange, Heart, Menu} from 'lucide-svelte'
+    import {AnnouncementsDialog, SocialsDialog, TutorialDialog} from "$lib/components/layout/dialogs";
 
     const isActive = (path: string) =>
         path === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(path);
@@ -47,15 +47,10 @@
 
         <AnnouncementsDialog />
 
-        <Button variant="outline" size="icon" title="Developer Socials" aria-label="Developer Socials" class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
-            <AtSign size={20} />
-        </Button>
+        <SocialsDialog />
 
-        <!-- Abstracted Style & Appearance Dropdown -->
         <ThemeDropdown />
 
-        <Button variant="outline" size="icon" title="Site Tutorial" aria-label="Site Tutorial" class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
-            <BookOpen size={20} />
-        </Button>
+        <TutorialDialog />
     </div>
 </header>
