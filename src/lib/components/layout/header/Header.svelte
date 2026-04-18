@@ -4,6 +4,7 @@
     import ThemeDropdown from '$lib/components/layout/header/ThemeDropdown.svelte';
 
     import {BowArrow, LayoutList, CalendarRange, Heart, Menu, Megaphone, AtSign, BookOpen} from 'lucide-svelte'
+    import {AnnouncementsDialog} from "$lib/components/layout/dialogs";
 
     const isActive = (path: string) =>
         path === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(path);
@@ -44,9 +45,7 @@
     <!-- Utility Buttons -->
     <div class="hidden xl:flex flex-row gap-2">
 
-        <Button variant="outline" size="icon" title="Announcements" aria-label="Announcements" class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
-            <Megaphone size={20} />
-        </Button>
+        <AnnouncementsDialog />
 
         <Button variant="outline" size="icon" title="Developer Socials" aria-label="Developer Socials" class="hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
             <AtSign size={20} />
