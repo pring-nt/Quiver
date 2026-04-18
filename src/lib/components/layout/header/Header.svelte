@@ -3,14 +3,7 @@
     import { Button, buttonVariants } from '$lib/components/ui/button';
     import ThemeDropdown from '$lib/components/layout/header/ThemeDropdown.svelte';
 
-    import BowArrow from 'lucide-svelte/icons/bow-arrow';
-    import LayoutList from 'lucide-svelte/icons/layout-list';
-    import CalendarRange from 'lucide-svelte/icons/calendar-range';
-    import Heart from 'lucide-svelte/icons/heart';
-    import Menu from 'lucide-svelte/icons/menu';
-    import Megaphone from 'lucide-svelte/icons/megaphone';
-    import AtSign from 'lucide-svelte/icons/at-sign';
-    import BookOpen from 'lucide-svelte/icons/book-open';
+    import {BowArrow, LayoutList, CalendarRange, Heart, Menu, Megaphone, AtSign, BookOpen} from 'lucide-svelte'
 
     const isActive = (path: string) =>
         path === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(path);

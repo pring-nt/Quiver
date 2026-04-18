@@ -5,12 +5,7 @@
     import { buttonVariants } from '$lib/components/ui/button';
     import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 
-    import WandSparkles from 'lucide-svelte/icons/wand-sparkles';
-    import Sword from 'lucide-svelte/icons/sword';
-    import Axe from 'lucide-svelte/icons/axe';
-    import Sparkles from 'lucide-svelte/icons/sparkles';
-    import Check from 'lucide-svelte/icons/check';
-    import SunMoon from 'lucide-svelte/icons/sun-moon';
+    import { WandSparkles, Sword, Axe, Sparkles, Check, SunMoon } from 'lucide-svelte';
 
     // Both appearance stores are now managed here
     const styleTheme = persisted('STYLE_PREFERENCE', 'himmel');
