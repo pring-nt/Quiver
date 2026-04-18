@@ -17,14 +17,14 @@
     const darkMode = persisted('DARK_PREFERENCE', false);
 
     const themes = [
-        { id: 'himmel', name: 'Himmel (Baby Blue)', icon: Sword },
+        { id: 'himmel', name: 'Himmel (Lake)', icon: Sword },
         { id: 'frieren', name: 'Frieren (Ivory)', icon: WandSparkles },
         { id: 'fern', name: 'Fern (Violet)', icon: Sparkles },
         { id: 'stark', name: 'Stark (Crimson)', icon: Axe }
     ];
 
+    // Derived state for the title string
     let currentTheme = $derived(themes.find(t => t.id === $styleTheme) || themes[0]);
-    let CurrentIcon = $derived(currentTheme.icon);
 
     $effect(() => {
         if (typeof document !== 'undefined') {
@@ -46,7 +46,15 @@
             class="{buttonVariants({ variant: 'outline', size: 'icon' })} hover:!bg-accent/80 hover:!text-accent-foreground transition-colors"
             title="Appearance: {currentTheme.name}"
     >
-        <CurrentIcon size={20} />
+        {#if $styleTheme === 'himmel'}
+            <Sword size={20} />
+        {:else if $styleTheme === 'frieren'}
+            <WandSparkles size={20} />
+        {:else if $styleTheme === 'fern'}
+            <Sparkles size={20} />
+        {:else}
+            <Axe size={20} />
+        {/if}
         <span class="sr-only">Toggle appearance settings</span>
     </DropdownMenu.Trigger>
 
