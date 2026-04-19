@@ -1,7 +1,7 @@
 <script lang="ts">
     import { buttonVariants } from '$lib/components/ui/button';
     import * as Sheet from '$lib/components/ui/sheet';
-    import { ThemeDropdown } from '$lib/components/layout/header';
+    import { ThemeDropdown } from '$lib/components/layout/dropdowns';
     import { AnnouncementsDialog, SocialsDialog, TutorialDialog } from '$lib/components/layout/dialogs';
     import { BowArrow, Menu } from 'lucide-svelte';
 

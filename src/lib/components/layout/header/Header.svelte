@@ -1,7 +1,7 @@
 <script lang="ts">
     import { page } from '$app/state';
     import { buttonVariants } from '$lib/components/ui/button';
-    import {ThemeDropdown} from '$lib/components/layout/header';
+    import {ThemeDropdown} from '$lib/components/layout/dropdowns';
 
     import {BowArrow, LayoutList, CalendarRange, Heart} from 'lucide-svelte'
     import {MobileMenu} from "$lib/components/layout/sidebar";
