@@ -1,12 +1,10 @@
 <script lang="ts">
     import { dndzone } from 'svelte-dnd-action';
     import { coursesStore } from '$lib/stores/courses';
-
+    import { CourseListMenu, CourseListItem } from '$lib/components/courses';
+    import { ScrollArea } from '$lib/components/ui/scroll-area';
     import { Button } from '$lib/components/ui/button';
     import { BookX, Link } from 'lucide-svelte';
-
-
-    import {CourseListMenu, CourseListItem} from '$lib/components/courses'
 
     const flipDurationMs = 200;
 
@@ -29,9 +27,8 @@
     }
 </script>
 
-<div class="flex flex-col flex-grow bg-card/50 border border-border rounded-lg overflow-hidden shadow-sm h-full max-h-[500px] lg:max-h-full">
 
-    <!-- Extracted Header & Dialogs -->
+<div class="flex flex-col h-full bg-card/50 border border-border rounded-xl overflow-hidden shadow-sm">
     <CourseListMenu onMassDelete={() => activeCourseId = null} />
 
     <!-- Group Courses Action Row -->
@@ -39,41 +36,42 @@
         <Button
                 variant="default"
                 class="w-full gap-2 shadow-sm font-medium"
-                onclick={() => alert("Grouping feature UI coming soon!")}
+                onclick={() => alert("Grouping feature UI is active in the main view!")}
         >
             <Link size={16} />
             Group Courses
         </Button>
     </div>
 
-    <!-- Scrollable Course List -->
-    <div class="flex-grow overflow-y-auto p-4">
+    <!-- Scrollable Content Area -->
+    <div class="flex-grow overflow-hidden mt-2">
+        <ScrollArea class="h-full px-4 pb-4">
+            <!-- Drag and Drop Zone -->
+            <section
+                    use:dndzone={{ items: $coursesStore, flipDurationMs, type: 'course-sidebar' }}
+                    onconsider={handleDndConsider}
+                    onfinalize={handleDndFinalize}
+                    class="min-h-[50px] flex flex-col gap-2 outline-none py-2"
+            >
+                {#each $coursesStore as course (course.id)}
+                    <div class="outline-none">
+                        <CourseListItem
+                                {course}
+                                isActive={activeCourseId === course.id}
+                                onSelect={() => activeCourseId = course.id}
+                                onDelete={() => deleteCourse(course.id)}
+                        />
+                    </div>
+                {/each}
+            </section>
 
-        <!-- Drag and Drop Zone -->
-        <section
-                use:dndzone={{ items: $coursesStore, flipDurationMs }}
-                onconsider={handleDndConsider}
-                onfinalize={handleDndFinalize}
-                class="min-h-[50px] flex flex-col gap-2 outline-none"
-        >
-            {#each $coursesStore as course (course.id)}
-                <div class="outline-none">
-                    <CourseListItem
-                            {course}
-                            isActive={activeCourseId === course.id}
-                            onSelect={() => activeCourseId = course.id}
-                            onDelete={() => deleteCourse(course.id)}
-                    />
+            <!-- Empty State -->
+            {#if $coursesStore.length === 0}
+                <div class="flex flex-col items-center justify-center py-12 text-muted-foreground gap-2 animate-in fade-in zoom-in-95 duration-500">
+                    <BookX size={32} class="opacity-50" />
+                    <p class="text-sm font-medium">No courses added yet.</p>
                 </div>
-            {/each}
-        </section>
-
-        <!-- Empty State -->
-        {#if $coursesStore.length === 0}
-            <div class="flex flex-col items-center justify-center h-40 text-muted-foreground gap-2 animate-in fade-in zoom-in-95 duration-500">
-                <BookX size={32} class="opacity-50" />
-                <p class="text-sm font-medium">No courses added yet.</p>
-            </div>
-        {/if}
+            {/if}
+        </ScrollArea>
     </div>
 </div>
