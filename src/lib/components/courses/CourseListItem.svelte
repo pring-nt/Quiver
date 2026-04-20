@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Button } from '$lib/components/ui/button';
     import { GripVertical, X } from 'lucide-svelte';
+    import { groupsStore } from '$lib/stores/courses';
     import type { Course } from '$lib/stores/courses';
 
     let {
@@ -14,6 +15,9 @@
         onSelect: () => void;
         onDelete: () => void;
     } = $props();
+
+    // Dynamically find the group name from the store
+    let groupName = $derived($groupsStore.find(g => g.id === course.groupId)?.name);
 </script>
 
 <div class="flex items-center gap-2 group w-full">
@@ -36,9 +40,12 @@
         <!-- Course Identifier -->
         <div class="flex-grow font-bold tracking-tight text-sm text-card-foreground leading-tight">
             {course.courseCode}
-            {#if course.groupId}
-                <span class="ml-2 text-[9px] uppercase font-bold bg-accent text-accent-foreground px-1.5 py-0.5 rounded-full">
-                    Grouped
+            {#if course.groupId && groupName}
+                <span
+                        class="ml-2 text-[9px] uppercase font-bold bg-accent text-accent-foreground px-1.5 py-0.5 rounded-full inline-block align-middle max-w-[100px] truncate"
+                        title={groupName}
+                >
+                    {groupName}
                 </span>
             {/if}
         </div>

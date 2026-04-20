@@ -28,7 +28,7 @@
         "e.g. BAWLING101",
         "e.g. MIMIC101",
         "e.g. MANASPRSN",
-        "e.g. AURA100 (You should drop yourself)",
+        "e.g. AURA100 (...go drop yourself)",
         "e.g. MYSHOT101",
         "e.g. NONSTOP",
         "e.g. WAITFRIT",
