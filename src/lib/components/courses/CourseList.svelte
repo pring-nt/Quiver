@@ -11,13 +11,30 @@
     // State to track which course the user clicked on to view in the Big Boy Component
     let activeCourseId = $state<string | null>(null);
 
+    // --- DnD State Syncing ---
+    // Prevent drag operations from polluting the global store with shadow items
+    // and breaking the Grouping View by tracking the list locally during the drag.
+    let localCourses = $state([...$coursesStore]);
+    let isDragging = $state(false);
+
+    $effect(() => {
+        // Automatically sync from the global store ONLY when not actively dragging
+        if (!isDragging) {
+            localCourses = [...$coursesStore];
+        }
+    });
+
     // Drag and Drop Handlers
     function handleDndConsider(e: any) {
-        $coursesStore = e.detail.items;
+        isDragging = true;
+        localCourses = e.detail.items;
     }
 
     function handleDndFinalize(e: any) {
-        $coursesStore = e.detail.items;
+        isDragging = false;
+        localCourses = e.detail.items;
+        // Only push to the master store once the drag is completely finished
+        $coursesStore = [...localCourses];
     }
 
     // Actions
@@ -47,13 +64,14 @@
     <div class="flex-grow overflow-hidden mt-2">
         <ScrollArea class="h-full px-4 pb-4">
             <!-- Drag and Drop Zone -->
+            <!-- Note: Now points to localCourses instead of $coursesStore -->
             <section
-                    use:dndzone={{ items: $coursesStore, flipDurationMs, type: 'course-sidebar' }}
+                    use:dndzone={{ items: localCourses, flipDurationMs, type: 'course-sidebar' }}
                     onconsider={handleDndConsider}
                     onfinalize={handleDndFinalize}
                     class="min-h-[50px] flex flex-col gap-2 outline-none py-2"
             >
-                {#each $coursesStore as course (course.id)}
+                {#each localCourses as course (course.id)}
                     <div class="outline-none">
                         <CourseListItem
                                 {course}
@@ -66,7 +84,7 @@
             </section>
 
             <!-- Empty State -->
-            {#if $coursesStore.length === 0}
+            {#if localCourses.length === 0}
                 <div class="flex flex-col items-center justify-center py-12 text-muted-foreground gap-2 animate-in fade-in zoom-in-95 duration-500">
                     <BookX size={32} class="opacity-50" />
                     <p class="text-sm font-medium">No courses added yet.</p>
