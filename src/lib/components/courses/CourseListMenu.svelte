@@ -5,7 +5,8 @@
     import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
     import * as AlertDialog from '$lib/components/ui/alert-dialog';
 
-    import { EllipsisVertical, Trash2, CalendarOff, Layers } from 'lucide-svelte';
+    import { ArrowClusterIcon } from "$lib/components/icons";
+    import { EllipsisVertical, Trash2, CalendarOff } from 'lucide-svelte';
 
     let { onMassDelete }: { onMassDelete: () => void } = $props();
 
@@ -46,7 +47,7 @@
 <!-- Header Row -->
 <div class="flex items-center justify-between p-4 border-b border-border bg-card">
     <h2 class="font-semibold text-lg flex items-center gap-2 text-card-foreground">
-        <Layers size={20} class="text-primary" />
+        <ArrowClusterIcon size={30} class="text-primary" />
         Course List
     </h2>
 
