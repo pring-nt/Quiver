@@ -13,14 +13,16 @@
         title: string;
         description?: string;
         icon?: any;
-        trigger: Snippet; // the button
-        children: Snippet; // the content
+        trigger: Snippet<[any]>;
+        children: Snippet;
     } = $props();
 </script>
 
 <Dialog.Root>
     <Dialog.Trigger>
-        {@render trigger()}
+        {#snippet child({ props })}
+            {@render trigger(props)}
+        {/snippet}
     </Dialog.Trigger>
 
     <Dialog.Content class="sm:max-w-lg">
