@@ -59,48 +59,48 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 /* THEME SYSTEM: FRIEREN (GREAT MAGE) */
 [data-theme="frieren"] {
-	--background: #F5F7F1;
-	--foreground: #1A1C1E;
-	--card: #EAEDE4;
-	--card-foreground: #1A1C1E;
-	--popover: #F5F7F1;
-	--popover-foreground: #1A1C1E;
-	--primary: #C9A84C;
-	--primary-foreground: #1A1C1E;
-	--secondary: #4A6147;
-	--secondary-foreground: #F5F7F1;
-	--muted: #DFE5D8;
-	--muted-foreground: #6B7A62;
-	--accent: #C8210A;
+	--background: #FAFAFA;
+	--foreground: #18181B;
+	--card: #FFFFFF;
+	--card-foreground: #18181B;
+	--popover: #FFFFFF;
+	--popover-foreground: #18181B;
+	--primary: #D4AF37;
+	--primary-foreground: #18181B;
+	--secondary: #E4E4E7;
+	--secondary-foreground: #18181B;
+	--muted: #F4F4F5;
+	--muted-foreground: #71717A;
+	--accent: #B91C1C;
 	--accent-foreground: #FFFFFF;
 	--destructive: #991B1B;
 	--destructive-foreground: #FFFFFF;
-	--border: #BEC9B5;
-	--input: #BEC9B5;
-	--ring: #C9A84C;
+	--border: #E4E4E7;
+	--input: #E4E4E7;
+	--ring: #D4AF37;
 	--radius: 0.5rem;
 }
 
 [data-theme="frieren"].dark {
-	--background: #111410;
-	--foreground: #E3E6DC;
-	--card: #191C18;
-	--card-foreground: #E3E6DC;
-	--popover: #191C18;
-	--popover-foreground: #E3E6DC;
-	--primary: #D4A843;
-	--primary-foreground: #111410;
-	--secondary: #7AB090;
-	--secondary-foreground: #111410;
-	--muted: #222520;
-	--muted-foreground: #8A9B7E;
-	--accent: #C8210A;
+	--background: #09090B;
+	--foreground: #FAFAFA;
+	--card: #18181B;
+	--card-foreground: #FAFAFA;
+	--popover: #18181B;
+	--popover-foreground: #FAFAFA;
+	--primary: #DDB53E;
+	--primary-foreground: #09090B;
+	--secondary: #27272A;
+	--secondary-foreground: #FAFAFA;
+	--muted: #27272A;
+	--muted-foreground: #A1A1AA;
+	--accent: #DC2626;
 	--accent-foreground: #FFFFFF;
 	--destructive: #EF4444;
 	--destructive-foreground: #FFFFFF;
-	--border: #2C3029;
-	--input: #2C3029;
-	--ring: #D4A843;
+	--border: #27272A;
+	--input: #27272A;
+	--ring: #DDB53E;
 }
 
 /* THEME SYSTEM: FERN (ZOLTRAAK SPAMMER) I GOT A RAYGUN IN MY HAND POWPOWPOWPOWPOW */
