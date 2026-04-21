@@ -1,8 +1,7 @@
 <script lang="ts">
     import { coursesStore, groupsStore, groupNameSchema } from '$lib/stores/courses';
     import type { Course, CourseGroup } from '$lib/stores/courses';
-    import GroupContainer from './GroupContainer.svelte';
-    import GroupingInfoDialog from './GroupingInfoDialog.svelte';
+    import {GroupContainer, GroupingInfoDialog} from '$lib/components/courses/groups';
 
     import { Button } from '$lib/components/ui/button';
     import { Input } from '$lib/components/ui/input';

@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { CourseAdd, CourseList, CourseGroupingView } from '$lib/components/courses';
+    import { CourseAdd, CourseList, CourseGroupingView, ClassSectionView } from '$lib/components/courses';
 
-    // We will import ClassSchedule here next!
-    // import { ClassSchedule } from '$lib/components/courses';
+    // This state connects the CourseList sidebar to the main view area.
+    // When null, it shows the Grouping View. When an ID is present, it shows that Course's Class Sections.
+    let activeCourseId = $state<string | null>(null);
 </script>
 
 <svelte:head>
@@ -11,28 +12,47 @@
 
 <!--
     Responsive Layout Strategy:
-    - On Desktop (lg): Pin height to viewport and hide main scrollbar to allow internal component scrolling.
-    - On Mobile/Tablet (<lg): Allow the height to be auto and the main body to scroll so stacked components are reachable.
+    - Mobile: Height is 'auto' with a minimum height, allowing the page to grow as long as the stacked components.
+    - Desktop (lg): Height is '100%' of the available main container, locking the page and using internal scrolling.
 -->
-<div class="flex gap-6 flex-col lg:flex-row w-full lg:h-[calc(100vh-64px)] overflow-y-auto lg:overflow-hidden bg-background p-6">
+<div class="
+    flex flex-col lg:flex-row
+    gap-6 w-full p-4 sm:p-6
+    bg-background
+    /* Mobile styles */
+    h-auto min-h-[calc(100vh-80px)] overflow-y-visible
+    /* Desktop styles */
+    lg:h-full lg:min-h-0 lg:overflow-hidden
+">
 
-    <!-- Left Column: Sidebar -->
-    <!-- h-full is now conditional so it doesn't force a viewport-height sidebar on mobile -->
+    <!-- Left Column: Fixed Width Sidebar -->
     <div class="flex flex-col gap-4 w-full lg:w-[350px] shrink-0 lg:h-full">
         <div class="shrink-0">
             <CourseAdd />
         </div>
 
-        <!-- On mobile, we want this to show its items; on desktop, it uses its internal ScrollArea -->
-        <div class="flex-grow min-h-0 lg:overflow-hidden">
-            <CourseList />
+        <div class="flex-grow lg:overflow-hidden">
+            <!--
+                Bind the active state so the sidebar can control the right panel.
+                This acts like our "tabs" controller!
+            -->
+            <CourseList bind:activeCourseId />
         </div>
     </div>
 
-    <!-- Right Column: Main Content -->
-    <!-- We remove overflow-hidden on mobile to let it expand naturally if needed -->
-    <div class="flex flex-col flex-grow w-full bg-card/30 rounded-xl border border-border/50 shadow-sm min-h-[400px] lg:h-full lg:overflow-hidden">
-        <CourseGroupingView />
+    <!-- Right Column: The Fluid Container -->
+    <div class="
+        flex flex-col flex-grow w-full
+        bg-card/30 rounded-xl border border-border/50 shadow-sm
+        /* Ensure it doesn't vanish on mobile and fills space on desktop */
+        min-h-[500px] lg:min-h-0 lg:h-full lg:overflow-hidden relative
+    ">
+        <!-- Conditional rendering swaps out the views seamlessly -->
+        {#if activeCourseId}
+            <ClassSectionView {activeCourseId} />
+        {:else}
+            <CourseGroupingView />
+        {/if}
     </div>
 
 </div>

@@ -8,17 +8,13 @@
 
     const flipDurationMs = 200;
 
-    // State to track which course the user clicked on to view in the Big Boy Component
-    let activeCourseId = $state<string | null>(null);
+    let { activeCourseId = $bindable(null) }: { activeCourseId?: string | null } = $props();
 
     // --- DnD State Syncing ---
-    // Prevent drag operations from polluting the global store with shadow items
-    // and breaking the Grouping View by tracking the list locally during the drag.
     let localCourses = $state([...$coursesStore]);
     let isDragging = $state(false);
 
     $effect(() => {
-        // Automatically sync from the global store ONLY when not actively dragging
         if (!isDragging) {
             localCourses = [...$coursesStore];
         }
@@ -33,7 +29,6 @@
     function handleDndFinalize(e: any) {
         isDragging = false;
         localCourses = e.detail.items;
-        // Only push to the master store once the drag is completely finished
         $coursesStore = [...localCourses];
     }
 
@@ -44,7 +39,6 @@
     }
 </script>
 
-
 <div class="flex flex-col h-full bg-card/50 border border-border rounded-xl overflow-hidden shadow-sm">
     <CourseListMenu onMassDelete={() => activeCourseId = null} />
 
@@ -53,7 +47,7 @@
         <Button
                 variant="default"
                 class="w-full gap-2 shadow-sm font-medium"
-                onclick={() => alert("Grouping feature UI is active in the main view!")}
+                onclick={() => activeCourseId = null}
         >
             <Link size={16} />
             Group Courses

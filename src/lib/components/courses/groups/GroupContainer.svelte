@@ -1,6 +1,6 @@
 <script lang="ts">
     import { dndzone } from 'svelte-dnd-action';
-    import GroupCourseItem from './GroupCourseItem.svelte';
+    import { GroupCourseItem } from '$lib/components/courses/groups';
 
     import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
     import { buttonVariants } from '$lib/components/ui/button';

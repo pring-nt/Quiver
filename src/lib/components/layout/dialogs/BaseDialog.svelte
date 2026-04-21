@@ -8,17 +8,19 @@
         description,
         icon: IconComponent,
         trigger,
-        children
+        children,
+        open = $bindable(false)
     }: {
         title: string;
         description?: string;
         icon?: any;
         trigger: Snippet<[any]>;
         children: Snippet;
+        open?: boolean;
     } = $props();
 </script>
 
-<Dialog.Root>
+<Dialog.Root bind:open={open}>
     <Dialog.Trigger>
         {#snippet child({ props })}
             {@render trigger(props)}

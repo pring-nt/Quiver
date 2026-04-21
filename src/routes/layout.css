@@ -6,6 +6,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+input[type="time"]::-webkit-calendar-picker-indicator {
+	display: none;
+	-webkit-appearance: none;
+}
+
 /* THEME SYSTEM: HIMMEL (BLUE MOON WEED) */
 :root, [data-theme="himmel"] {
 	--background: #F4F9FD;
