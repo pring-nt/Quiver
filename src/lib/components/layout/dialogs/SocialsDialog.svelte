@@ -28,8 +28,9 @@
         icon={AtSign}
 >
     <!-- The Trigger Button -->
-    {#snippet trigger()}
+    {#snippet trigger(props)}
         <Button
+                {...props}
                 variant="outline"
                 size="icon"
                 title="Developer Socials"

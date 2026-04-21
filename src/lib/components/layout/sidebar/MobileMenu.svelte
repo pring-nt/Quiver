@@ -1,9 +1,10 @@
 <script lang="ts">
     import { buttonVariants } from '$lib/components/ui/button';
     import * as Sheet from '$lib/components/ui/sheet';
+    import { QuiverIcon } from '$lib/components/icons'
     import { ThemeDropdown } from '$lib/components/layout/dropdowns';
     import { AnnouncementsDialog, SocialsDialog, TutorialDialog } from '$lib/components/layout/dialogs';
-    import { BowArrow, Menu } from 'lucide-svelte';
+    import { Menu } from 'lucide-svelte';
 
     let {
         navLinks,
@@ -27,7 +28,7 @@
                 <Sheet.Title>
                     <a href="/" class="flex gap-2 font-extrabold text-lg items-center tracking-tight" onclick={() => isMobileMenuOpen = false}>
                         <div class="p-2 bg-primary rounded-lg flex justify-center items-center h-10 w-10 text-primary-foreground">
-                            <BowArrow size={24} />
+                            <QuiverIcon size={24} />
                         </div>
                         Quiver
                     </a>
