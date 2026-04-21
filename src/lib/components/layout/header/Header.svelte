@@ -1,11 +1,11 @@
 <script lang="ts">
     import { page } from '$app/state';
     import { buttonVariants } from '$lib/components/ui/button';
-    import {ThemeDropdown} from '$lib/components/layout/header';
-
-    import {BowArrow, LayoutList, CalendarRange, Heart} from 'lucide-svelte'
-    import {MobileMenu} from "$lib/components/layout/sidebar";
-    import {AnnouncementsDialog, SocialsDialog, TutorialDialog} from "$lib/components/layout/dialogs";
+    import { ThemeDropdown } from '$lib/components/layout/dropdowns';
+    import { QuiverIcon } from '$lib/components/icons';
+    import { LayoutList, CalendarRange, Heart} from 'lucide-svelte'
+    import { MobileMenu } from "$lib/components/layout/sidebar";
+    import { AnnouncementsDialog, SocialsDialog, TutorialDialog } from "$lib/components/layout/dialogs";
 
     const isActive = (path: string) =>
         path === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(path);
@@ -21,7 +21,7 @@
     <!-- Brand -->
     <a href="/" class="flex gap-2 font-extrabold text-lg items-center tracking-tight transition-opacity hover:opacity-80">
         <div class="p-2 bg-primary rounded-lg flex justify-center items-center h-10 w-10 text-primary-foreground">
-            <BowArrow size={24} />
+            <QuiverIcon size={24} />
         </div>
         Quiver
     </a>
