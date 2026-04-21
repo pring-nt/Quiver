@@ -8,7 +8,8 @@
 
     const flipDurationMs = 200;
 
-    let { activeCourseId = $bindable(null) }: { activeCourseId?: string | null } = $props();
+    // State tracks course ID, 'grouping' view, or null (no selection)
+    let { activeCourseId = $bindable(null) }: { activeCourseId?: string | 'grouping' | null } = $props();
 
     // --- DnD State Syncing ---
     let localCourses = $state([...$coursesStore]);
@@ -45,9 +46,9 @@
     <!-- Group Courses Action Row -->
     <div class="px-4 pt-4">
         <Button
-                variant="default"
-                class="w-full gap-2 shadow-sm font-medium"
-                onclick={() => activeCourseId = null}
+                variant={activeCourseId === 'grouping' ? 'secondary' : 'default'}
+                class="w-full gap-2 shadow-sm font-medium transition-colors"
+                onclick={() => activeCourseId = 'grouping'}
         >
             <Link size={16} />
             Group Courses

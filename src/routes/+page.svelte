@@ -2,8 +2,10 @@
     import { CourseAdd, CourseList, CourseGroupingView, ClassSectionView } from '$lib/components/courses';
 
     // This state connects the CourseList sidebar to the main view area.
-    // When null, it shows the Grouping View. When an ID is present, it shows that Course's Class Sections.
-    let activeCourseId = $state<string | null>(null);
+    // 'grouping' = Grouping View
+    // <id> = Class Section View for a specific course
+    // null = Class Section View fallback (Nothing selected)
+    let activeCourseId = $state<string | 'grouping' | null>(null);
 </script>
 
 <svelte:head>
@@ -47,11 +49,10 @@
         /* Ensure it doesn't vanish on mobile and fills space on desktop */
         min-h-[500px] lg:min-h-0 lg:h-full lg:overflow-hidden relative
     ">
-        <!-- Conditional rendering swaps out the views seamlessly -->
-        {#if activeCourseId}
-            <ClassSectionView {activeCourseId} />
-        {:else}
+        {#if activeCourseId === 'grouping'}
             <CourseGroupingView />
+        {:else}
+            <ClassSectionView {activeCourseId} />
         {/if}
     </div>
 

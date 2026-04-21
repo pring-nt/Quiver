@@ -173,7 +173,7 @@
     </Dialog.Content>
 </Dialog.Root>
 
-<div class="flex flex-col h-full overflow-hidden">
+<div class="flex flex-col h-full overflow-hidden animate-in fade-in zoom-in-[0.98] duration-300">
     <div class="p-6 pb-4 border-b border-border/50 shrink-0">
         <div class="flex items-center gap-2">
             <h2 class="text-2xl font-bold tracking-tight">Group Courses</h2>
