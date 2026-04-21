@@ -5,14 +5,20 @@
 </script>
 
 <!--
-    The wrapper is forced to 100dvh (dynamic viewport height) to account for mobile address bars.
-    We remove max-w-7xl and mx-auto to allow full-width expansion.
+    Responsive Wrapper:
+    - Mobile: min-h-dvh (minimum height) and overflow-y-auto to allow scrolling.
+    - Desktop (lg): Fixed h-dvh and overflow-hidden to keep the app-like feel.
 -->
-<div class="h-dvh flex flex-col bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary-foreground overflow-hidden">
+<div class="
+    flex flex-col bg-background text-foreground antialiased
+    selection:bg-primary/30 selection:text-primary-foreground
+    min-h-dvh overflow-y-auto
+    lg:h-dvh lg:overflow-hidden
+">
 
     <Header />
 
-    <main class="flex-1 w-full overflow-hidden">
+    <main class="flex-1 w-full lg:overflow-hidden">
         {@render children()}
     </main>
 

@@ -41,57 +41,61 @@
 	--primary-foreground: #0B1120;
 	--secondary: #1E293B;
 	--secondary-foreground: #E2E8F0;
+	--muted: #162032;
+	--muted-foreground: #94A3B8;
 	--accent: #1E3A8A;
-	--accent-foreground: #F1F5F9;
+	--accent-foreground: #E2E8F0;
 	--destructive: #EF4444;
 	--destructive-foreground: #FFFFFF;
-	--border: #1E293B;
-	--input: #1E293B;
+	--border: #243554;
+	--input: #243554;
 	--ring: #38BDF8;
 }
 
 /* THEME SYSTEM: FRIEREN (GREAT MAGE) */
 [data-theme="frieren"] {
-	--background: #FDFDFB;
+	--background: #F5F7F1;
 	--foreground: #1A1C1E;
-	--card: #F1F3F4;
+	--card: #EAEDE4;
 	--card-foreground: #1A1C1E;
-	--popover: #FDFDFB;
+	--popover: #F5F7F1;
 	--popover-foreground: #1A1C1E;
-	--primary: #D7B264;
+	--primary: #C9A84C;
 	--primary-foreground: #1A1C1E;
-	--secondary: #4A5568;
-	--secondary-foreground: #FDFDFB;
-	--muted: #EDF2F7;
-	--muted-foreground: #718096;
-	--accent: #D70601;
+	--secondary: #4A6147;
+	--secondary-foreground: #F5F7F1;
+	--muted: #DFE5D8;
+	--muted-foreground: #6B7A62;
+	--accent: #C8210A;
 	--accent-foreground: #FFFFFF;
 	--destructive: #991B1B;
 	--destructive-foreground: #FFFFFF;
-	--border: #CBD5E0;
-	--input: #CBD5E0;
-	--ring: #D7B264;
+	--border: #BEC9B5;
+	--input: #BEC9B5;
+	--ring: #C9A84C;
 	--radius: 0.5rem;
 }
 
 [data-theme="frieren"].dark {
-	--background: #141313;
-	--foreground: #E2E1E4;
-	--card: #1C1D1F;
-	--card-foreground: #E2E1E4;
-	--popover: #1C1D1F;
-	--popover-foreground: #E2E1E4;
-	--primary: #90C6A7;
-	--primary-foreground: #141313;
-	--secondary: #D7B264;
-	--secondary-foreground: #141313;
-	--accent: #D70601;
+	--background: #111410;
+	--foreground: #E3E6DC;
+	--card: #191C18;
+	--card-foreground: #E3E6DC;
+	--popover: #191C18;
+	--popover-foreground: #E3E6DC;
+	--primary: #D4A843;
+	--primary-foreground: #111410;
+	--secondary: #7AB090;
+	--secondary-foreground: #111410;
+	--muted: #222520;
+	--muted-foreground: #8A9B7E;
+	--accent: #C8210A;
 	--accent-foreground: #FFFFFF;
 	--destructive: #EF4444;
 	--destructive-foreground: #FFFFFF;
-	--border: #3D3F41;
-	--input: #3D3F41;
-	--ring: #90C6A7;
+	--border: #2C3029;
+	--input: #2C3029;
+	--ring: #D4A843;
 }
 
 /* THEME SYSTEM: FERN (ZOLTRAAK SPAMMER) I GOT A RAYGUN IN MY HAND POWPOWPOWPOWPOW */
@@ -129,8 +133,10 @@
 	--primary-foreground: #1A1621;
 	--secondary: #4A3B5C;
 	--secondary-foreground: #E9E1F5;
-	--accent: #DDD6FE;
-	--accent-foreground: #1A1621;
+	--muted: #201A29;
+	--muted-foreground: #9D8FBA;
+	--accent: #2E2440;
+	--accent-foreground: #DDD6FE;
 	--destructive: #F43F5E;
 	--destructive-foreground: #FFFFFF;
 	--border: #362E40;
@@ -171,11 +177,11 @@
 	--popover-foreground: #F5F5F4;
 	--primary: #EF4444;
 	--primary-foreground: #FFFFFF;
-	--secondary: #44403C;
+	--secondary: #57534E;
 	--secondary-foreground: #F5F5F4;
 	--accent: #F97316;
 	--accent-foreground: #0C0A09;
-	--destructive: #EF4444;
+	--destructive: #DC2626;
 	--destructive-foreground: #FFFFFF;
 	--border: #292524;
 	--input: #292524;

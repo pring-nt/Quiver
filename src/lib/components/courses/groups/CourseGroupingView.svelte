@@ -214,14 +214,17 @@
                 <div
                         role="button"
                         tabindex="0"
-                        class="rounded-lg border-2 border-dashed border-border bg-card/30 text-muted-foreground hover:border-primary hover:bg-primary/5 hover:text-primary transition-all duration-300 flex min-h-[300px] w-full flex-col items-center justify-center gap-3 p-4 group cursor-pointer"
+                        class="rounded-lg border-2 border-dashed border-border bg-card/30 text-muted-foreground hover:border-primary hover:bg-primary/10 hover:text-primary transition-all duration-300 flex min-h-[300px] w-full flex-col items-center justify-center gap-3 p-4 group cursor-pointer"
                         onclick={openAddGroup}
                         onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && openAddGroup()}
                 >
-                    <div class="p-3 bg-muted rounded-full group-hover:bg-primary/20 transition-colors">
-                        <Plus size={32} class="text-muted-foreground group-hover:text-primary transition-colors" />
+                    <div class="p-4 bg-secondary rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 shadow-sm">
+                        <Plus
+                                size={32}
+                                class="text-secondary-foreground group-hover:text-primary-foreground transition-colors"
+                        />
                     </div>
-                    <span class="font-medium text-lg">Create New Group</span>
+                    <span class="font-semibold text-lg tracking-tight">Create New Group</span>
                 </div>
             </div>
         </ScrollArea>

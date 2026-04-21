@@ -84,7 +84,8 @@
         placeholderText = easterEggPlaceholders[randomIndex];
     }
 </script>
-
+<div class="pb-4 shrink-0">
+<h2 class="text-2xl font-bold tracking-tight">Add Courses</h2>
 <form onsubmit={handleSubmit} class="flex flex-col gap-2 w-full max-w-sm">
     <div class="flex gap-2">
         <Input
@@ -107,3 +108,4 @@
         </div>
     {/if}
 </form>
+</div>

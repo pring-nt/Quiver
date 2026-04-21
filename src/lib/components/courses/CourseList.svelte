@@ -64,9 +64,13 @@
     <div class="flex-grow overflow-hidden mt-2">
         <ScrollArea class="h-full px-4 pb-4">
             <!-- Drag and Drop Zone -->
-            <!-- Note: Now points to localCourses instead of $coursesStore -->
             <section
-                    use:dndzone={{ items: localCourses, flipDurationMs, type: 'course-sidebar' }}
+                    use:dndzone={{
+                        items: localCourses,
+                        flipDurationMs,
+                        type: 'course-sidebar',
+                        dropTargetStyle: {}
+                    }}
                     onconsider={handleDndConsider}
                     onfinalize={handleDndFinalize}
                     class="min-h-[50px] flex flex-col gap-2 outline-none py-2"
