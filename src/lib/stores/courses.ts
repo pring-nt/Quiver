@@ -56,3 +56,4 @@ export const classSectionSchema = z.object({
 // Global Stores
 export const coursesStore = persisted<Course[]>('QUIVER_COURSES_LIST', []);
 export const groupsStore = persisted<CourseGroup[]>('QUIVER_GROUPS_LIST', []);
+export const selectedSectionsStore = persisted<Record<string, boolean>>('QUIVER_SELECTED_SECTIONS', {});

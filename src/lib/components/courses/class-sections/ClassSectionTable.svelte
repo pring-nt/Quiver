@@ -19,7 +19,7 @@
         Search, Copy, X, TableOfContents, User, Clock, Calendar, Monitor
     } from 'lucide-svelte';
 
-    import { coursesStore } from '$lib/stores/courses';
+    import { coursesStore, selectedSectionsStore } from '$lib/stores/courses';
     import type { Course } from '$lib/stores/courses';
     import type { DaySlot, ClassSection, Day } from '$lib/types';
 
@@ -27,7 +27,6 @@
 
     // Table State
     let sorting = $state<SortingState>([]);
-    let rowSelection = $state<Record<string, boolean>>({});
     let globalFilter = $state('');
 
     // Faceted Filter States
@@ -95,9 +94,9 @@
     let tableOptions = $derived({
         data: filteredSections,
         columns,
-        state: { sorting, rowSelection, globalFilter },
+        state: { sorting, rowSelection: $selectedSectionsStore, globalFilter },
         onSortingChange: (updater: any) => { sorting = typeof updater === 'function' ? updater(sorting) : updater; },
-        onRowSelectionChange: (updater: any) => { rowSelection = typeof updater === 'function' ? updater(rowSelection) : updater; },
+        onRowSelectionChange: (updater: any) => { $selectedSectionsStore = typeof updater === 'function' ? updater($selectedSectionsStore) : updater; },
         onGlobalFilterChange: (updater: any) => { globalFilter = typeof updater === 'function' ? updater(globalFilter) : updater; },
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -157,20 +156,34 @@
         coursesStore.update(all => all.map(c =>
             c.id === course.id ? { ...c, sections: c.sections.filter(s => s.id !== sectionId) } : c
         ));
-        if (rowSelection[sectionId]) {
-            const newSelection = { ...rowSelection };
-            delete newSelection[sectionId];
-            rowSelection = newSelection;
+        if ($selectedSectionsStore[sectionId]) {
+            selectedSectionsStore.update(sel => {
+                const next = { ...sel };
+                delete next[sectionId];
+                return next;
+            });
         }
     }
 
     function massDeleteSelected() {
-        const idsToDelete = Object.keys(rowSelection);
+        const currentCourseIds = course.sections?.map(s => s.id) || [];
+        const idsToDelete = Object.keys($selectedSectionsStore).filter(id => currentCourseIds.includes(id) && $selectedSectionsStore[id]);
+
         coursesStore.update(all => all.map(c =>
             c.id === course.id ? { ...c, sections: c.sections.filter(s => !idsToDelete.includes(s.id)) } : c
         ));
-        rowSelection = {};
+
+        selectedSectionsStore.update(sel => {
+            const next = { ...sel };
+            idsToDelete.forEach(id => delete next[id]);
+            return next;
+        });
     }
+
+    // Calculate how many selected sections belong to THIS course
+    let selectedInCourseCount = $derived(
+        course.sections?.filter(s => $selectedSectionsStore[s.id]).length || 0
+    );
 </script>
 
 <div class="rounded-xl border border-border/50 bg-card/60 shadow-sm flex flex-col h-full overflow-hidden relative backdrop-blur-sm">
@@ -423,10 +436,10 @@
     </div>
 
     <!-- Footer / Selection Status -->
-    {#if Object.keys(rowSelection).length > 0}
+    {#if selectedInCourseCount > 0}
         <div class="bg-card/95 backdrop-blur-sm border-t border-border/80 p-3 flex justify-between items-center text-sm absolute bottom-0 left-0 right-0 animate-in slide-in-from-bottom-2 shadow-[0_-4px_10px_rgba(0,0,0,0.02)] z-20">
             <span class="text-muted-foreground font-medium ml-2">
-                <strong class="text-foreground">{Object.keys(rowSelection).length}</strong> section(s) selected
+                <strong class="text-foreground">{selectedInCourseCount}</strong> section(s) selected
             </span>
             <Button variant="outline" size="sm" onclick={massDeleteSelected} class="h-8 gap-2 bg-background hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-colors mr-2 font-bold">
                 <Trash2 size={14} />

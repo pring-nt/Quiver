@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { coursesStore } from '$lib/stores/courses';
+    import { coursesStore, selectedSectionsStore } from '$lib/stores/courses';
 
     import { buttonVariants } from '$lib/components/ui/button';
     import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
@@ -13,11 +13,12 @@
     let showDeleteAlert = $state(false);
 
     function clearAllSchedules() {
-        alert("This will clear all selected class sections once the Big Boy component is hooked up!");
+        $selectedSectionsStore = {};
     }
 
     function deleteAllCourses() {
         $coursesStore = [];
+        $selectedSectionsStore = {};
         showDeleteAlert = false;
         onMassDelete(); // Notify parent to clear any active selections
     }
