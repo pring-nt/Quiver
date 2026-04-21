@@ -128,7 +128,7 @@
             <div class="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg border border-border/50">
                 <div class="flex flex-col gap-1.5">
                     <label for="section" class="text-xs font-bold text-muted-foreground uppercase">Section Code</label>
-                    <Input id="section" bind:value={section} placeholder="e.g. TN12" required class="font-medium bg-background shadow-sm" />
+                    <Input id="section" bind:value={section} placeholder="e.g. S18" required class="font-medium bg-background shadow-sm" />
                 </div>
                 <div class="flex flex-col gap-1.5">
                     <label for="modality" class="text-xs font-bold text-muted-foreground uppercase">Modality</label>
@@ -147,7 +147,7 @@
                 </div>
                 <div class="flex flex-col gap-1.5 col-span-2">
                     <label for="professor" class="text-xs font-bold text-muted-foreground uppercase">Professor</label>
-                    <Input id="professor" bind:value={professor} placeholder="e.g. Shirley Chu" required class="font-medium bg-background shadow-sm" />
+                    <Input id="professor" bind:value={professor} placeholder="e.g. Alexander Hamilton" required class="font-medium bg-background shadow-sm" />
                 </div>
             </div>
 

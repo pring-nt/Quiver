@@ -1,6 +1,10 @@
 <script lang="ts">
     import { coursesStore } from '$lib/stores/courses';
-    import { ClassSectionTable, SectionAddDialog }  from '$lib/components/courses/class-sections';
+    import {
+        ClassSectionImportExport,
+        ClassSectionTable,
+        SectionAddDialog
+    } from '$lib/components/courses/class-sections';
 
     let { activeCourseId }: { activeCourseId: string } = $props();
 
@@ -22,8 +26,10 @@
                     Manage available schedules and sections for this course. Select rows to delete multiple at once.
                 </p>
             </div>
-
-            <SectionAddDialog {course} />
+            <div class="flex flex-row gap-1.5">
+                <ClassSectionImportExport {course}/>
+                <SectionAddDialog {course} />
+            </div>
         </div>
 
         <!-- Table Container (Flush padding to let the table card breathe) -->
