@@ -9,19 +9,20 @@
 
     import * as Table from '$lib/components/ui/table';
     import { Checkbox } from '$lib/components/ui/checkbox';
-    import { Button, buttonVariants } from '$lib/components/ui/button';
+    import { Button } from '$lib/components/ui/button';
     import { Input } from '$lib/components/ui/input';
-    import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
     import { ScrollArea } from '$lib/components/ui/scroll-area';
 
     import {
-        ArrowUpDown, ArrowUp, ArrowDown, Trash2, CalendarX2, Ellipsis,
-        Search, Copy, X, TableOfContents, User, Clock, Calendar, Monitor
+        Trash2, CalendarX2, Search, X, TableOfContents, User, Clock, Calendar, Monitor
     } from 'lucide-svelte';
 
     import { coursesStore, selectedSectionsStore } from '$lib/stores/courses';
     import type { Course } from '$lib/stores/courses';
-    import type { DaySlot, ClassSection, Day } from '$lib/types';
+    import type { Day } from '$lib/types';
+
+    import { getSchedules, getDays, getRooms } from '$lib/utils/scheduleHelpers';
+    import { TableFilter, SortableColumn, RowActions } from '$lib/components/courses/class-sections'
 
     let { course }: { course: Course } = $props();
 
@@ -36,14 +37,13 @@
     let activeSchedules = $state<string[]>([]);
     let activeModalities = $state<string[]>([]);
 
-    // Dynamically extract unique values for the dropdowns (from the raw course data)
+    // Dynamically extract unique values for the dropdowns
     let uniqueSections = $derived([...new Set(course.sections?.map(s => s.section) || [])].sort());
     let uniqueProfessors = $derived([...new Set(course.sections?.map(s => s.professor).filter(Boolean) || [])].sort());
     let uniqueDays: Day[] = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su'];
     let uniqueSchedules = $derived([...new Set(course.sections?.flatMap(s => getSchedules(s.slots)) || [])].sort());
     let uniqueModalities = $derived([...new Set(course.sections?.map(s => s.modality).filter(Boolean) || [])].sort());
 
-    // Derived state for empty view polish
     let hasActiveFilters = $derived(
         globalFilter !== '' || activeSections.length > 0 ||
         activeProfessors.length > 0 || activeDays.length > 0 ||
@@ -65,10 +65,6 @@
         }
         return true;
     }));
-
-    function toggleFilter<T>(list: T[], value: T): T[] {
-        return list.includes(value) ? list.filter(v => v !== value) : [...list, value];
-    }
 
     function clearFilters() {
         activeSections = [];
@@ -109,62 +105,6 @@
 
     let table = $derived(createTable(tableOptions));
 
-    // --- Formatting Helpers ---
-    function formatTime12hr(time: string) {
-        if (!time) return '';
-        const [h, m] = time.split(':');
-        let hours = parseInt(h, 10);
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12;
-        hours = hours ? hours : 12;
-        return `${hours}:${m} ${ampm}`;
-    }
-
-    function getSchedules(slots: DaySlot[]) {
-        if (!slots || slots.length === 0) return [];
-        const times = new Set<string>();
-        slots.forEach(s => times.add(`${formatTime12hr(s.startTime)} - ${formatTime12hr(s.endTime)}`));
-        return Array.from(times);
-    }
-
-    function getDays(slots: DaySlot[]) {
-        if (!slots || slots.length === 0) return '-';
-        return Array.from(new Set(slots.map(s => s.day))).join('/');
-    }
-
-    function getRooms(slots: DaySlot[]) {
-        if (!slots || slots.length === 0) return '-';
-        const rooms = slots.map(s => s.room).filter(Boolean);
-        return rooms.length > 0 ? Array.from(new Set(rooms)).join(', ') : '-';
-    }
-
-    // --- Actions ---
-    function duplicateSection(section: ClassSection) {
-        const newSection: ClassSection = {
-            ...section,
-            id: crypto.randomUUID(),
-            section: `${section.section} (Copy)`,
-            slots: section.slots.map(s => ({ ...s, id: crypto.randomUUID() })) // Deep clone slots
-        };
-
-        coursesStore.update(all => all.map(c =>
-            c.id === course.id ? { ...c, sections: [...c.sections, newSection] } : c
-        ));
-    }
-
-    function deleteSection(sectionId: string) {
-        coursesStore.update(all => all.map(c =>
-            c.id === course.id ? { ...c, sections: c.sections.filter(s => s.id !== sectionId) } : c
-        ));
-        if ($selectedSectionsStore[sectionId]) {
-            selectedSectionsStore.update(sel => {
-                const next = { ...sel };
-                delete next[sectionId];
-                return next;
-            });
-        }
-    }
-
     function massDeleteSelected() {
         const currentCourseIds = course.sections?.map(s => s.id) || [];
         const idsToDelete = Object.keys($selectedSectionsStore).filter(id => currentCourseIds.includes(id) && $selectedSectionsStore[id]);
@@ -180,10 +120,12 @@
         });
     }
 
-    // Calculate how many selected sections belong to THIS course
     let selectedInCourseCount = $derived(
         course.sections?.filter(s => $selectedSectionsStore[s.id]).length || 0
     );
+
+    // Day label mapper for the Days TableFilter
+    const getDayLabel = (opt: Day) => opt === 'Th' ? 'Thursday' : opt === 'Su' ? 'Sunday' : opt === 'M' ? 'Monday' : opt === 'T' ? 'Tuesday' : opt === 'W' ? 'Wednesday' : opt === 'F' ? 'Friday' : 'Saturday';
 </script>
 
 <div class="rounded-xl border border-border/50 bg-card/60 shadow-sm flex flex-col h-full overflow-hidden relative backdrop-blur-sm">
@@ -192,123 +134,20 @@
     <div class="p-3 border-b border-border/50 bg-background/30 flex flex-col sm:flex-row items-start sm:items-center gap-3 shrink-0">
         <div class="relative w-full sm:max-w-[250px] shrink-0">
             <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input
-                    placeholder="Search sections..."
-                    bind:value={globalFilter}
-                    class="pl-9 h-8 bg-background shadow-sm transition-colors focus-visible:bg-background text-sm"
-            />
+            <Input placeholder="Search sections..." bind:value={globalFilter} class="pl-9 h-8 bg-background shadow-sm text-sm" />
         </div>
 
-        <!-- Filter Elements -->
+        <!-- Abstracted Filter Elements -->
         <div class="flex flex-1 flex-wrap items-center gap-2">
-            <!-- Section Filter -->
-            <DropdownMenu.Root>
-                <DropdownMenu.Trigger class="{buttonVariants({variant: 'outline', size: 'sm'})} h-8 text-muted-foreground bg-background hover:bg-accent hover:text-accent-foreground px-3">
-                    <TableOfContents class="mr-2 size-4" /> Section
-                    {#if activeSections.length > 0}
-                        <span class="ml-2 rounded-sm bg-secondary px-1.5 py-0.5 font-bold text-secondary-foreground text-[10px]">
-                            {activeSections.length}
-                        </span>
-                    {/if}
-                </DropdownMenu.Trigger>
-                <DropdownMenu.Content align="start" class="w-[200px] p-0">
-                    <ScrollArea class="max-h-[300px] p-1">
-                        {#each uniqueSections as opt}
-                            <DropdownMenu.CheckboxItem checked={activeSections.includes(opt)} onCheckedChange={() => activeSections = toggleFilter(activeSections, opt)}>
-                                {opt}
-                            </DropdownMenu.CheckboxItem>
-                        {/each}
-                    </ScrollArea>
-                </DropdownMenu.Content>
-            </DropdownMenu.Root>
+            <TableFilter label="Section" icon={TableOfContents} options={uniqueSections} bind:activeValues={activeSections} />
+            <TableFilter label="Professor" icon={User} options={uniqueProfessors} bind:activeValues={activeProfessors} />
+            <TableFilter label="Schedules" icon={Clock} options={uniqueSchedules} bind:activeValues={activeSchedules} />
+            <TableFilter label="Days" icon={Calendar} options={uniqueDays} bind:activeValues={activeDays} getLabel={getDayLabel} />
+            <TableFilter label="Modality" icon={Monitor} options={uniqueModalities} bind:activeValues={activeModalities} />
 
-            <!-- Professor Filter -->
-            <DropdownMenu.Root>
-                <DropdownMenu.Trigger class="{buttonVariants({variant: 'outline', size: 'sm'})} h-8 text-muted-foreground bg-background hover:bg-accent hover:text-accent-foreground px-3">
-                    <User class="mr-2 size-4" /> Professor
-                    {#if activeProfessors.length > 0}
-                        <span class="ml-2 rounded-sm bg-secondary px-1.5 py-0.5 font-bold text-secondary-foreground text-[10px]">
-                            {activeProfessors.length}
-                        </span>
-                    {/if}
-                </DropdownMenu.Trigger>
-                <DropdownMenu.Content align="start" class="w-[220px] p-0">
-                    <ScrollArea class="max-h-[300px] p-1">
-                        {#each uniqueProfessors as opt}
-                            <DropdownMenu.CheckboxItem checked={activeProfessors.includes(opt)} onCheckedChange={() => activeProfessors = toggleFilter(activeProfessors, opt)}>
-                                {opt}
-                            </DropdownMenu.CheckboxItem>
-                        {/each}
-                    </ScrollArea>
-                </DropdownMenu.Content>
-            </DropdownMenu.Root>
-
-            <!-- Schedules Filter -->
-            <DropdownMenu.Root>
-                <DropdownMenu.Trigger class="{buttonVariants({variant: 'outline', size: 'sm'})} h-8 text-muted-foreground bg-background hover:bg-accent hover:text-accent-foreground px-3">
-                    <Clock class="mr-2 size-4" /> Schedules
-                    {#if activeSchedules.length > 0}
-                        <span class="ml-2 rounded-sm bg-secondary px-1.5 py-0.5 font-bold text-secondary-foreground text-[10px]">
-                            {activeSchedules.length}
-                        </span>
-                    {/if}
-                </DropdownMenu.Trigger>
-                <DropdownMenu.Content align="start" class="w-[200px] p-0">
-                    <ScrollArea class="max-h-[300px] p-1">
-                        {#each uniqueSchedules as opt}
-                            <DropdownMenu.CheckboxItem checked={activeSchedules.includes(opt)} onCheckedChange={() => activeSchedules = toggleFilter(activeSchedules, opt)}>
-                                {opt}
-                            </DropdownMenu.CheckboxItem>
-                        {/each}
-                    </ScrollArea>
-                </DropdownMenu.Content>
-            </DropdownMenu.Root>
-
-            <!-- Days Filter -->
-            <DropdownMenu.Root>
-                <DropdownMenu.Trigger class="{buttonVariants({variant: 'outline', size: 'sm'})} h-8 text-muted-foreground bg-background hover:bg-accent hover:text-accent-foreground px-3">
-                    <Calendar class="mr-2 size-4" /> Days
-                    {#if activeDays.length > 0}
-                        <span class="ml-2 rounded-sm bg-secondary px-1.5 py-0.5 font-bold text-secondary-foreground text-[10px]">
-                            {activeDays.length}
-                        </span>
-                    {/if}
-                </DropdownMenu.Trigger>
-                <DropdownMenu.Content align="start" class="w-[150px]">
-                    {#each uniqueDays as opt}
-                        <DropdownMenu.CheckboxItem checked={activeDays.includes(opt)} onCheckedChange={() => activeDays = toggleFilter(activeDays, opt)}>
-                            {opt === 'Th' ? 'Thursday' : opt === 'Su' ? 'Sunday' : opt === 'M' ? 'Monday' : opt === 'T' ? 'Tuesday' : opt === 'W' ? 'Wednesday' : opt === 'F' ? 'Friday' : 'Saturday'}
-                        </DropdownMenu.CheckboxItem>
-                    {/each}
-                </DropdownMenu.Content>
-            </DropdownMenu.Root>
-
-            <!-- Modality Filter -->
-            <DropdownMenu.Root>
-                <DropdownMenu.Trigger class="{buttonVariants({variant: 'outline', size: 'sm'})} h-8 text-muted-foreground bg-background hover:bg-accent hover:text-accent-foreground px-3">
-                    <Monitor class="mr-2 size-4" /> Modality
-                    {#if activeModalities.length > 0}
-                        <span class="ml-2 rounded-sm bg-secondary px-1.5 py-0.5 font-bold text-secondary-foreground text-[10px]">
-                            {activeModalities.length}
-                        </span>
-                    {/if}
-                </DropdownMenu.Trigger>
-                <DropdownMenu.Content align="start" class="w-[180px] p-0">
-                    <ScrollArea class="max-h-[300px] p-1">
-                        {#each uniqueModalities as opt}
-                            <DropdownMenu.CheckboxItem checked={activeModalities.includes(opt)} onCheckedChange={() => activeModalities = toggleFilter(activeModalities, opt)}>
-                                {opt}
-                            </DropdownMenu.CheckboxItem>
-                        {/each}
-                    </ScrollArea>
-                </DropdownMenu.Content>
-            </DropdownMenu.Root>
-
-            <!-- Reset Button -->
             {#if hasActiveFilters}
                 <Button variant="ghost" size="sm" class="h-8 px-2 lg:px-3 font-semibold" onclick={clearFilters}>
-                    Reset
-                    <X class="ml-2 size-4" />
+                    Reset <X class="ml-2 size-4" />
                 </Button>
             {/if}
         </div>
@@ -316,9 +155,7 @@
 
     <!-- Table Content -->
     <div class="flex-grow min-h-0 relative">
-        <!-- orientation="both" enforces Shadcn styling for horizontal scrolling as well -->
         <ScrollArea class="h-full w-full" orientation="both">
-            <!-- !overflow-visible removes the native browser scrollbar so the ScrollArea component handles it entirely -->
             <Table.Root class="w-full caption-bottom text-sm !overflow-visible">
                 <Table.Header class="sticky top-0 bg-muted/80 backdrop-blur-md z-10 border-b border-border/50">
                     <Table.Row class="hover:bg-transparent">
@@ -327,25 +164,11 @@
                         </Table.Head>
 
                         <Table.Head class="h-11 px-4 text-left align-middle w-24">
-                            <div class="flex items-center space-x-2 min-w-12">
-                                <Button variant="ghost" size="sm" class="-ml-3 h-8 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground data-[state=open]:bg-accent px-3 hover:bg-accent" onclick={table.getColumn('section')?.getToggleSortingHandler()}>
-                                    <span>Section</span>
-                                    {#if table.getColumn('section')?.getIsSorted() === 'asc'} <ArrowUp class="ml-1.5 size-3.5 text-primary" />
-                                    {:else if table.getColumn('section')?.getIsSorted() === 'desc'} <ArrowDown class="ml-1.5 size-3.5 text-primary" />
-                                    {:else} <ArrowUpDown class="ml-1.5 size-3.5 opacity-40" /> {/if}
-                                </Button>
-                            </div>
+                            <SortableColumn column={table.getColumn('section')} label="Section" />
                         </Table.Head>
 
                         <Table.Head class="h-11 px-4 text-left align-middle w-[250px] whitespace-nowrap">
-                            <div class="flex items-center space-x-2">
-                                <Button variant="ghost" size="sm" class="-ml-3 h-8 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground data-[state=open]:bg-accent px-3 hover:bg-accent" onclick={table.getColumn('professor')?.getToggleSortingHandler()}>
-                                    <span>Professor</span>
-                                    {#if table.getColumn('professor')?.getIsSorted() === 'asc'} <ArrowUp class="ml-1.5 size-3.5 text-primary" />
-                                    {:else if table.getColumn('professor')?.getIsSorted() === 'desc'} <ArrowDown class="ml-1.5 size-3.5 text-primary" />
-                                    {:else} <ArrowUpDown class="ml-1.5 size-3.5 opacity-40" /> {/if}
-                                </Button>
-                            </div>
+                            <SortableColumn column={table.getColumn('professor')} label="Professor" />
                         </Table.Head>
 
                         <Table.Head class="h-11 px-4 text-left align-middle text-xs font-bold uppercase tracking-wider text-muted-foreground">Schedules</Table.Head>
@@ -382,22 +205,8 @@
                             <Table.Cell class="p-3 px-4 align-middle font-bold text-muted-foreground">{getDays(row.original.slots)}</Table.Cell>
                             <Table.Cell class="p-3 px-4 align-middle text-sm text-muted-foreground max-w-[200px] truncate" title={row.original.remarks}>{row.original.remarks || '-'}</Table.Cell>
                             <Table.Cell class="p-3 px-4 align-middle text-right">
-                                <DropdownMenu.Root>
-                                    <DropdownMenu.Trigger class="{buttonVariants({variant:'ghost', size:'icon'})} size-8 text-muted-foreground hover:bg-accent hover:text-foreground">
-                                        <Ellipsis class="size-4" />
-                                    </DropdownMenu.Trigger>
-                                    <DropdownMenu.Content align="end" class="w-40">
-                                        <DropdownMenu.Item onclick={() => duplicateSection(row.original)} class="cursor-pointer gap-2 font-medium transition-colors">
-                                            <Copy class="size-4 text-muted-foreground" />
-                                            Duplicate
-                                        </DropdownMenu.Item>
-                                        <DropdownMenu.Separator />
-                                        <DropdownMenu.Item onclick={() => deleteSection(row.original.id)} class="text-destructive focus:!bg-destructive focus:!text-destructive-foreground gap-2 cursor-pointer transition-colors font-medium">
-                                            <Trash2 class="size-4" />
-                                            Delete
-                                        </DropdownMenu.Item>
-                                    </DropdownMenu.Content>
-                                </DropdownMenu.Root>
+                                <!-- Abstracted Row Actions -->
+                                <RowActions {course} section={row.original} />
                             </Table.Cell>
                         </Table.Row>
                     {/each}

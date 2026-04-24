@@ -5,28 +5,41 @@
     import { Checkbox } from '$lib/components/ui/checkbox';
     import * as Select from '$lib/components/ui/select';
 
-    // Compressed icon imports
-    import { Plus, Trash2, BookPlus, CircleAlert } from 'lucide-svelte';
+    import { Plus, Trash2, Pencil, CircleAlert } from 'lucide-svelte';
 
     import { coursesStore, classSectionSchema } from '$lib/stores/courses';
     import type { Course } from '$lib/stores/courses';
-    import type { Modality, Day } from '$lib/types';
+    import type { Modality, Day, ClassSection } from '$lib/types';
 
-    let { course }: { course: Course } = $props();
+    let { course, sectionData, open = $bindable(false) }: { course: Course, sectionData: ClassSection, open: boolean } = $props();
 
-    let open = $state(false);
     let errorMessage = $state<string | null>(null);
 
-    // Form State
+    // Form State (initialized empty, populated by $effect when dialog opens)
     let section = $state('');
     let professor = $state('');
     let modality = $state<Modality>('F2F');
     let remarks = $state('');
+    let slots = $state<{id: string, day: Day, startTime: string, endTime: string, room: string, isOnline: boolean}[]>([]);
 
-    // Slots initialized with HHMM format
-    let slots = $state<{id: string, day: Day, startTime: string, endTime: string, room: string, isOnline: boolean}[]>([
-        { id: crypto.randomUUID(), day: 'M', startTime: '0800', endTime: '0930', room: '', isOnline: false }
-    ]);
+    // Reset state whenever the dialog opens to ensure it reflects the latest data
+    $effect(() => {
+        if (open) {
+            section = sectionData.section;
+            professor = sectionData.professor;
+            modality = sectionData.modality;
+            remarks = sectionData.remarks || '';
+            slots = sectionData.slots.map(s => ({
+                day: s.day,
+                isOnline: s.isOnline,
+                room: s.room || '',
+                id: crypto.randomUUID(),
+                startTime: s.startTime.replace(':', ''),
+                endTime: s.endTime.replace(':', '')
+            }));
+            errorMessage = null;
+        }
+    });
 
     function addSlot() {
         // Grab the last slot to copy its values
@@ -56,7 +69,6 @@
         slots = slots.filter(s => s.id !== id);
     }
 
-    // Custom Time Validation for HHMM
     function validateTimes() {
         for (const slot of slots) {
             const start = slot.startTime;
@@ -85,17 +97,14 @@
         e.preventDefault();
         errorMessage = null;
 
-        // Run manual time validation
         const timeError = validateTimes();
         if (timeError) {
             errorMessage = timeError;
             return;
         }
 
-        // We don't need to manually slice the time strings here anymore!
-        // Our smarter Zod schema in courses.ts handles the HHMM to HH:MM transformation automatically.
         const payload = {
-            id: crypto.randomUUID(),
+            id: sectionData.id, // Maintain the original ID to overwrite
             code: course.courseCode,
             section: section.trim().toUpperCase(),
             professor: professor.trim(),
@@ -104,51 +113,43 @@
             slots: slots.map(({id, ...rest}) => rest) // Just strip the UI id
         };
 
-        // Zod Validation
         const parsed = classSectionSchema.safeParse(payload);
         if (!parsed.success) {
             errorMessage = parsed.error.issues[0].message;
             return;
         }
 
-        const newSection = parsed.data;
+        const updatedSection = parsed.data;
 
-        // Push to Store
+        // Update the existing section in the store instead of adding a new one
         coursesStore.update(all => all.map(c =>
-            c.id === course.id ? { ...c, sections: [...(c.sections || []), newSection] } : c
+            c.id === course.id ? {
+                ...c,
+                sections: c.sections.map(s => s.id === sectionData.id ? updatedSection : s)
+            } : c
         ));
 
-        // Reset Form & Close
-        section = '';
-        professor = '';
-        modality = 'F2F';
-        remarks = '';
-        slots = [{ id: crypto.randomUUID(), day: 'M', startTime: '0800', endTime: '0930', room: '', isOnline: false }];
         open = false;
     }
 </script>
 
-<BaseDialog bind:open={open} title="Add Section: {course.courseCode}" description="Configure the schedule slots and details for this section." icon={BookPlus}>
+<BaseDialog bind:open={open} title="Edit Section: {sectionData.section}" description="Update the schedule slots and details for this section." icon={Pencil}>
 
     {#snippet trigger(props)}
-        <Button {...props} class="gap-2 shrink-0 shadow-sm font-semibold">
-            <Plus size={18} />
-            Add Section
-        </Button>
+        <div class="hidden" {...props}></div>
     {/snippet}
 
     {#snippet children()}
         <form onsubmit={onSubmit} class="flex flex-col gap-5 pb-4 px-1">
-            <!-- Basic Details -->
             <div class="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg border border-border/50">
                 <div class="flex flex-col gap-1.5">
-                    <label for="section" class="text-xs font-bold text-muted-foreground uppercase">Section Code</label>
-                    <Input id="section" bind:value={section} placeholder="e.g. S18" required class="font-medium bg-background shadow-sm" />
+                    <label for="edit-section" class="text-xs font-bold text-muted-foreground uppercase">Section Code</label>
+                    <Input id="edit-section" bind:value={section} placeholder="e.g. S18" required class="font-medium bg-background shadow-sm" />
                 </div>
                 <div class="flex flex-col gap-1.5">
-                    <label for="modality" class="text-xs font-bold text-muted-foreground uppercase">Modality</label>
+                    <label for="edit-modality" class="text-xs font-bold text-muted-foreground uppercase">Modality</label>
                     <Select.Root type="single" bind:value={modality}>
-                        <Select.Trigger id="modality" class="h-9 w-full shadow-sm font-medium bg-background">
+                        <Select.Trigger id="edit-modality" class="h-9 w-full shadow-sm font-medium bg-background">
                             {modality === 'F2F' ? 'Face to Face' : modality}
                         </Select.Trigger>
                         <Select.Content>
@@ -161,12 +162,11 @@
                     </Select.Root>
                 </div>
                 <div class="flex flex-col gap-1.5 col-span-2">
-                    <label for="professor" class="text-xs font-bold text-muted-foreground uppercase">Professor</label>
-                    <Input id="professor" bind:value={professor} placeholder="e.g. Alexander Hamilton" required class="font-medium bg-background shadow-sm" />
+                    <label for="edit-professor" class="text-xs font-bold text-muted-foreground uppercase">Professor</label>
+                    <Input id="edit-professor" bind:value={professor} placeholder="e.g. Alexander Hamilton" required class="font-medium bg-background shadow-sm" />
                 </div>
             </div>
 
-            <!-- Dynamic Slots Array -->
             <div class="flex flex-col gap-3">
                 <div class="flex items-center gap-2 border-b border-border/50 pb-2">
                     <h4 class="font-bold text-sm tracking-tight">Time & Day Slots</h4>
@@ -183,9 +183,9 @@
 
                             <div class="grid grid-cols-[1fr_1fr_1fr] gap-3 pr-8">
                                 <div class="flex flex-col gap-1.5">
-                                    <label for={`day-${slot.id}`} class="text-[10px] font-bold text-muted-foreground uppercase">Day</label>
+                                    <label for={`edit-day-${slot.id}`} class="text-[10px] font-bold text-muted-foreground uppercase">Day</label>
                                     <Select.Root type="single" bind:value={slot.day}>
-                                        <Select.Trigger id={`day-${slot.id}`} class="h-8 w-full shadow-sm font-medium text-xs bg-background">
+                                        <Select.Trigger id={`edit-day-${slot.id}`} class="h-8 w-full shadow-sm font-medium text-xs bg-background">
                                             {slot.day}
                                         </Select.Trigger>
                                         <Select.Content>
@@ -196,23 +196,23 @@
                                     </Select.Root>
                                 </div>
                                 <div class="flex flex-col gap-1.5">
-                                    <label for={`start-${slot.id}`} class="text-[10px] font-bold text-muted-foreground uppercase">Start <span class="font-normal opacity-50">(HHMM)</span></label>
-                                    <Input id={`start-${slot.id}`} type="text" inputmode="numeric" maxlength={4} placeholder="0800" bind:value={slot.startTime} class="h-8 text-xs px-2 font-medium shadow-sm" required />
+                                    <label for={`edit-start-${slot.id}`} class="text-[10px] font-bold text-muted-foreground uppercase">Start <span class="font-normal opacity-50">(HHMM)</span></label>
+                                    <Input id={`edit-start-${slot.id}`} type="text" inputmode="numeric" maxlength={4} placeholder="0800" bind:value={slot.startTime} class="h-8 text-xs px-2 font-medium shadow-sm" required />
                                 </div>
                                 <div class="flex flex-col gap-1.5">
-                                    <label for={`end-${slot.id}`} class="text-[10px] font-bold text-muted-foreground uppercase">End <span class="font-normal opacity-50">(HHMM)</span></label>
-                                    <Input id={`end-${slot.id}`} type="text" inputmode="numeric" maxlength={4} placeholder="0930" bind:value={slot.endTime} class="h-8 text-xs px-2 font-medium shadow-sm" required />
+                                    <label for={`edit-end-${slot.id}`} class="text-[10px] font-bold text-muted-foreground uppercase">End <span class="font-normal opacity-50">(HHMM)</span></label>
+                                    <Input id={`edit-end-${slot.id}`} type="text" inputmode="numeric" maxlength={4} placeholder="0930" bind:value={slot.endTime} class="h-8 text-xs px-2 font-medium shadow-sm" required />
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-[1fr_auto] gap-3 items-end">
                                 <div class="flex flex-col gap-1.5">
-                                    <label for={`room-${slot.id}`} class="text-[10px] font-bold text-muted-foreground uppercase">Room</label>
-                                    <Input id={`room-${slot.id}`} bind:value={slot.room} placeholder="e.g. G204" class="h-8 text-xs px-2 font-medium shadow-sm" />
+                                    <label for={`edit-room-${slot.id}`} class="text-[10px] font-bold text-muted-foreground uppercase">Room</label>
+                                    <Input id={`edit-room-${slot.id}`} bind:value={slot.room} placeholder="e.g. G204" class="h-8 text-xs px-2 font-medium shadow-sm" />
                                 </div>
                                 <div class="flex items-center gap-2 h-8 px-3 border border-border/50 rounded-md bg-muted/30">
-                                    <Checkbox id={`online-${slot.id}`} bind:checked={slot.isOnline} />
-                                    <label for={`online-${slot.id}`} class="text-xs font-bold cursor-pointer text-muted-foreground hover:text-foreground transition-colors">Online</label>
+                                    <Checkbox id={`edit-online-${slot.id}`} bind:checked={slot.isOnline} />
+                                    <label for={`edit-online-${slot.id}`} class="text-xs font-bold cursor-pointer text-muted-foreground hover:text-foreground transition-colors">Online</label>
                                 </div>
                             </div>
                         </div>
@@ -225,10 +225,9 @@
                 </Button>
             </div>
 
-            <!-- Optional Remarks -->
             <div class="flex flex-col gap-1.5 pt-2 border-t border-border/50">
-                <label for="remarks" class="text-xs font-bold text-muted-foreground uppercase">Remarks <span class="text-muted-foreground/50 font-normal">(Optional)</span></label>
-                <Input id="remarks" bind:value={remarks} placeholder="e.g. For BSA students only, strict prereq..." class="bg-card shadow-sm" />
+                <label for="edit-remarks" class="text-xs font-bold text-muted-foreground uppercase">Remarks <span class="text-muted-foreground/50 font-normal">(Optional)</span></label>
+                <Input id="edit-remarks" bind:value={remarks} placeholder="e.g. For BSA students only, strict prereq..." class="bg-card shadow-sm" />
             </div>
 
             {#if errorMessage}
@@ -238,7 +237,7 @@
                 </div>
             {/if}
 
-            <Button type="submit" class="w-full font-bold text-sm h-10 shadow-sm mt-1">Save Class Section</Button>
+            <Button type="submit" class="w-full font-bold text-sm h-10 shadow-sm mt-1">Save Changes</Button>
         </form>
     {/snippet}
 </BaseDialog>
