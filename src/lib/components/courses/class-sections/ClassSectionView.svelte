@@ -5,11 +5,10 @@
         ClassSectionTable,
         SectionAddDialog
     } from '$lib/components/courses/class-sections';
+    
+    let { activeCourseId }: { activeCourseId: string | null } = $props();
 
-    let { activeCourseId }: { activeCourseId: string } = $props();
-
-    // reacts to course list clicks or store updates
-    let course = $derived($coursesStore.find(c => c.id === activeCourseId));
+    let course = $derived(activeCourseId ? $coursesStore.find(c => c.id === activeCourseId) : null);
 </script>
 
 {#if course}
@@ -38,7 +37,7 @@
         </div>
     </div>
 {:else}
-    <!-- Fallback if a course ID is invalid -->
+    <!-- Fallback if a course ID is invalid or null -->
     <div class="flex h-full items-center justify-center text-muted-foreground font-medium animate-in fade-in">
         Select a course from the sidebar to view its sections.
     </div>
