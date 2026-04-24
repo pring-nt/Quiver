@@ -1,7 +1,7 @@
 <script lang="ts">
     import { coursesStore, selectedSectionsStore } from '$lib/stores/courses';
-
     import { buttonVariants } from '$lib/components/ui/button';
+    import { GlobalImportExport } from '$lib/components/courses';
     import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
     import * as AlertDialog from '$lib/components/ui/alert-dialog';
 
@@ -52,25 +52,30 @@
         Course List
     </h2>
 
-    <!-- Three-Dot Global Actions Menu -->
-    <DropdownMenu.Root>
-        <DropdownMenu.Trigger class="{buttonVariants({ variant: 'outline', size: 'icon' })} h-8 w-8 hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
-            <EllipsisVertical size={18} />
-            <span class="sr-only">Course Options</span>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content align="end" class="w-56">
-            <DropdownMenu.Item onclick={clearAllSchedules} class="gap-2 cursor-pointer">
-                <CalendarOff size={16} />
-                Clear Selected Schedules
-            </DropdownMenu.Item>
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item
-                    onclick={() => showDeleteAlert = true}
-                    class="gap-2 cursor-pointer text-destructive focus:!bg-destructive focus:!text-destructive-foreground transition-colors"
-            >
-                <Trash2 size={16} />
-                Mass Delete Courses
-            </DropdownMenu.Item>
-        </DropdownMenu.Content>
-    </DropdownMenu.Root>
+    <!-- Global Actions Container -->
+    <div class="flex items-center gap-1.5">
+        <GlobalImportExport />
+
+        <!-- Three-Dot Global Actions Menu -->
+        <DropdownMenu.Root>
+            <DropdownMenu.Trigger class="{buttonVariants({ variant: 'outline', size: 'icon' })} h-8 w-8 hover:!bg-accent/80 hover:!text-accent-foreground transition-colors">
+                <EllipsisVertical size={18} />
+                <span class="sr-only">Course Options</span>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content align="end" class="w-56">
+                <DropdownMenu.Item onclick={clearAllSchedules} class="gap-2 cursor-pointer">
+                    <CalendarOff size={16} />
+                    Clear Selected Schedules
+                </DropdownMenu.Item>
+                <DropdownMenu.Separator />
+                <DropdownMenu.Item
+                        onclick={() => showDeleteAlert = true}
+                        class="gap-2 cursor-pointer text-destructive focus:!bg-destructive focus:!text-destructive-foreground transition-colors"
+                >
+                    <Trash2 size={16} />
+                    Mass Delete Courses
+                </DropdownMenu.Item>
+            </DropdownMenu.Content>
+        </DropdownMenu.Root>
+    </div>
 </div>
