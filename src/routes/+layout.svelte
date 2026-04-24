@@ -1,6 +1,10 @@
 <script lang="ts">
+    import { Toaster } from '$lib/components/ui/sonner';
+    import { persisted } from 'svelte-persisted-store';
     import './layout.css';
     import { Header } from '$lib/components/layout/header';
+
+    const darkMode = persisted('DARK_PREFERENCE', false);
     let { children } = $props();
 </script>
 
@@ -23,3 +27,5 @@
     </main>
 
 </div>
+
+<Toaster position="bottom-right" theme={$darkMode ? 'dark' : 'light'} />
