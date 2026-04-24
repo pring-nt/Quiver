@@ -239,3 +239,19 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 		@apply font-heading tracking-tight font-extrabold;
 	}
 }
+
+[data-sonner-toaster] {
+	--normal-bg: var(--popover);
+	--normal-border: var(--border);
+	--normal-text: var(--popover-foreground);
+	--description-text: var(--muted-foreground);
+	--success-bg: var(--popover);
+	--success-border: var(--primary);
+	--success-text: var(--popover-foreground);
+	--error-bg: var(--popover);
+	--error-border: var(--destructive);
+	--error-text: var(--popover-foreground);
+	--warning-bg: var(--popover);
+	--warning-border: var(--border);
+	--warning-text: var(--popover-foreground);
+}
