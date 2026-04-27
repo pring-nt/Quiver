@@ -4,14 +4,26 @@
     import { Textarea } from '$lib/components/ui/textarea';
     import { toast } from 'svelte-sonner';
 
-    import { Database, Download, Upload, Copy, FileBraces, CircleAlert, CircleCheck } from 'lucide-svelte';
+    import { Database, Download, Upload, Copy, FileBraces, CircleAlert, CircleCheck, Link } from 'lucide-svelte';
 
     import { coursesStore, groupsStore, selectedSectionsStore, globalDataSchema } from '$lib/stores/courses';
     import type { Course, CourseGroup } from '$lib/stores/courses';
+    import { encodeData, decodeData } from '$lib/utils/share';
 
     let open = $state(false);
     let fileInput = $state<HTMLInputElement | null>(null);
     let pastedJson = $state('');
+
+    // URL detection state
+    let urlImportParam = $state<string | null>(null);
+
+    // Check for an 'import' param in the URL when the component mounts
+    $effect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            urlImportParam = params.get('import');
+        }
+    });
 
     // Conflict Resolution State
     let importQueue = $state<{
@@ -66,6 +78,22 @@
         }
     }
 
+    async function copyShareLink(data: any, msg: string) {
+        try {
+            const encoded = encodeData(data);
+            const link = `${window.location.origin}${window.location.pathname}?import=${encoded}`;
+
+            if (link.length > 2000) {
+                toast.warning("Link is very long! It may be truncated by some chat apps. Use 'Copy JSON' if sharing fails.", { duration: 10000 });
+            }
+
+            await navigator.clipboard.writeText(link);
+            toast.success(msg);
+        } catch {
+            toast.error("Failed to generate or copy share link.");
+        }
+    }
+
     function downloadJson(data: any, filename: string) {
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -97,13 +125,21 @@
 
     function processImportData(text: string) {
         if (!text.trim()) {
-            toast.error("Please provide JSON data to import.");
+            toast.error("Please provide data to import.");
             return;
         }
 
         try {
-            const json = JSON.parse(text);
-            const parsed = globalDataSchema.safeParse(json);
+            let data;
+            const trimmed = text.trim();
+
+            if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+                data = JSON.parse(trimmed);
+            } else {
+                data = decodeData(trimmed);
+            }
+
+            const parsed = globalDataSchema.safeParse(data);
 
             if (!parsed.success) {
                 const issue = parsed.error.issues[0];
@@ -111,16 +147,16 @@
                 return;
             }
 
-            const data = parsed.data;
+            const validData = parsed.data;
 
             const groupIdMap = new Map<string, string>();
-            const newGroups: CourseGroup[] = (data.groups || []).map(g => {
+            const newGroups: CourseGroup[] = (validData.groups || []).map(g => {
                 const newId = crypto.randomUUID();
                 if (g.id) groupIdMap.set(g.id, newId);
                 return { ...g, id: newId } as CourseGroup;
             });
 
-            const mappedCourses: Course[] = (data.courses || []).map(c => {
+            const mappedCourses: Course[] = (validData.courses || []).map(c => {
                 const newId = crypto.randomUUID();
                 const newSections = c.sections.map(s => ({
                     ...s,
@@ -155,7 +191,7 @@
             }
 
         } catch (e) {
-            toast.error("Invalid JSON format. Please ensure it matches the curriculum structure.");
+            toast.error("Invalid format. Please ensure it's valid JSON or a valid share link.");
         } finally {
             if (fileInput) fileInput.value = '';
         }
@@ -197,10 +233,15 @@
         toast.success(`Imported/Updated ${totalImported} course(s) successfully.`);
     }
 
-    // Helper to safely trigger the import without inline non-null assertions
     function confirmImport() {
         if (!importQueue) return;
         executeImport(importQueue.groups, importQueue.newCourses, importQueue.conflicts);
+    }
+
+    function handleUrlImport() {
+        if (urlImportParam) {
+            processImportData(urlImportParam);
+        }
     }
 
     async function handleFileImport(event: Event) {
@@ -289,35 +330,54 @@
                         <h4 class="font-bold text-sm tracking-tight">Export Curriculum</h4>
                     </div>
                     <p class="text-sm text-muted-foreground mb-1">
-                        Export all your courses, sections, and schedule groupings simultaneously.
+                        Export your courses, sections, and schedule groupings.
                     </p>
 
                     <div class="flex flex-col gap-2">
-                        <div class="grid grid-cols-[1fr_auto] gap-2">
+                        <div class="grid grid-cols-[1fr_auto_auto] gap-2">
                             <Button variant="secondary" size="sm" class="w-full gap-2 font-semibold shadow-sm" onclick={() => downloadJson(getAllData(), `quiver_curriculum_all.json`)} disabled={$coursesStore.length === 0}>
-                                <Download size={14} /> Download All Courses
+                                <Download size={14} /> Download All
                             </Button>
-                            <Button variant="outline" size="icon" class="h-8 w-8 shadow-sm text-muted-foreground hover:text-foreground" onclick={() => copyToClipboard(getAllData(), "Curriculum copied to clipboard!")} disabled={$coursesStore.length === 0} title="Copy JSON to clipboard">
+                            <Button variant="outline" size="icon" class="h-8 w-8 shadow-sm text-muted-foreground hover:text-foreground" onclick={() => copyToClipboard(getAllData(), "Curriculum JSON copied!")} disabled={$coursesStore.length === 0} title="Copy JSON">
                                 <Copy size={14} />
+                            </Button>
+                            <Button variant="outline" size="icon" class="h-8 w-8 shadow-sm text-muted-foreground hover:text-foreground" onclick={() => copyShareLink(getAllData(), "Shareable Curriculum Link copied!")} disabled={$coursesStore.length === 0} title="Copy Share Link">
+                                <Link size={14} />
                             </Button>
                         </div>
 
-                        <div class="grid grid-cols-[1fr_auto] gap-2">
+                        <div class="grid grid-cols-[1fr_auto_auto] gap-2">
                             <Button variant="secondary" size="sm" class="w-full gap-2 font-semibold shadow-sm" onclick={() => downloadJson(getSelectedData(), `quiver_curriculum_selected.json`)} disabled={selectedCount === 0}>
                                 <Download size={14} /> Download Selected Only ({selectedCount})
                             </Button>
-                            <Button variant="outline" size="icon" class="h-8 w-8 shadow-sm text-muted-foreground hover:text-foreground" onclick={() => copyToClipboard(getSelectedData(), "Selected curriculum copied to clipboard!")} disabled={selectedCount === 0} title="Copy selected to clipboard">
+                            <Button variant="outline" size="icon" class="h-8 w-8 shadow-sm text-muted-foreground hover:text-foreground" onclick={() => copyToClipboard(getSelectedData(), "Selected JSON copied!")} disabled={selectedCount === 0} title="Copy Selected JSON">
                                 <Copy size={14} />
+                            </Button>
+                            <Button variant="outline" size="icon" class="h-8 w-8 shadow-sm text-muted-foreground hover:text-foreground" onclick={() => copyShareLink(getSelectedData(), "Shareable Selected Link copied!")} disabled={selectedCount === 0} title="Copy Selected Share Link">
+                                <Link size={14} />
                             </Button>
                         </div>
                     </div>
                 </div>
 
                 <div class="flex flex-col gap-3 p-4 border border-border/60 rounded-lg bg-card shadow-sm">
-                    <div class="flex items-center gap-2 border-b border-border/50 pb-2">
+                    <div class="flex items-center gap-2 border-b border-border/50 pb-2 mb-1">
                         <Upload size={18} class="text-primary" />
                         <h4 class="font-bold text-sm tracking-tight">Import Curriculum</h4>
                     </div>
+
+                    <!-- URL Shared Data Banner -->
+                    {#if urlImportParam}
+                        <div class="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/30 shadow-sm animate-in fade-in zoom-in-95">
+                            <div class="flex flex-col gap-0.5">
+                                <span class="text-sm font-bold text-primary flex items-center gap-1.5"><Link size={14}/> Shared Data Detected</span>
+                                <span class="text-[11px] text-muted-foreground">A share link is present in your URL.</span>
+                            </div>
+                            <Button size="sm" class="h-8 font-bold gap-1.5" onclick={handleUrlImport}>
+                                <Download size={14} /> Import Now
+                            </Button>
+                        </div>
+                    {/if}
 
                     <div class="flex flex-col gap-2">
                         <input
@@ -339,15 +399,15 @@
 
                     <div class="flex items-center gap-3 my-1">
                         <div class="h-px bg-border/50 flex-grow"></div>
-                        <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Or Paste Directly</span>
+                        <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Or Paste Data</span>
                         <div class="h-px bg-border/50 flex-grow"></div>
                     </div>
 
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-col gap-2 min-w-0">
                         <Textarea
                                 bind:value={pastedJson}
-                                placeholder="Paste global JSON payload here..."
-                                class="min-h-[90px] font-mono text-xs resize-none shadow-sm"
+                                placeholder="Paste global JSON payload or Share Link here..."
+                                class="min-h-[90px] font-mono text-xs resize-none shadow-sm break-all"
                         />
                         <Button size="sm" onclick={() => processImportData(pastedJson)} class="w-full font-bold shadow-sm h-8" disabled={!pastedJson.trim()}>
                             Import from Text
