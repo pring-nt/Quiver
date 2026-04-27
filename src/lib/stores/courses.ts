@@ -46,7 +46,7 @@ export const daySlotSchema = z.object({
 });
 
 export const classSectionSchema = z.object({
-    id: z.string(),
+    id: z.string().optional(),
     code: z.string(),
     section: z.string().min(1, "Section code is required"),
     professor: z.string().min(1, "Professor name is required"),
@@ -57,7 +57,7 @@ export const classSectionSchema = z.object({
 
 // Validation for course groups
 export const courseGroupSchema = z.object({
-    id: z.string(),
+    id: z.string().optional(),
     name: z.string(),
     sectionIds: z.array(z.string()).optional().default([]),
     pickCount: z.number().optional().default(1)
@@ -65,7 +65,7 @@ export const courseGroupSchema = z.object({
 
 // Validation for full course (with sections)
 export const courseSchema = z.object({
-    id: z.string(),
+    id: z.string().optional(),
     courseCode: z.string(),
     sections: z.array(classSectionSchema).optional().default([]),
     groupId: z.string().optional()
