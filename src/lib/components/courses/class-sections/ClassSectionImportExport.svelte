@@ -9,7 +9,7 @@
     import { coursesStore, selectedSectionsStore, classSectionSchema } from '$lib/stores/courses';
     import type { Course } from '$lib/stores/courses';
     import type { ClassSection } from '$lib/types';
-    import { encodeData, decodeData } from '$lib/utils/share';
+    import {decodeData, generateShareUrl} from '$lib/utils/share';
 
     let { course }: { course: Course } = $props();
 
@@ -79,15 +79,17 @@
 
     async function copyShareLink(data: any, msg: string) {
         try {
-            const encoded = encodeData(data);
-            const link = `${window.location.origin}${window.location.pathname}?import=${encoded}`;
-
-            if (link.length > 2000) {
-                toast.warning("Link is very long! It may be truncated by some chat apps. Use 'Copy JSON' if sharing fails.", { duration: 10000 });
-            }
+            const link = generateShareUrl(data);
 
             await navigator.clipboard.writeText(link);
-            toast.success(msg);
+            if (link.length > 2000) {
+                toast.success(msg, {
+                    description: "Link is very long — it may be truncated in some chat apps. Use 'Copy JSON' if sharing fails.",
+                    duration: 8000
+                });
+            } else {
+                toast.success(msg);
+            }
         } catch {
             toast.error("Failed to generate or copy share link.");
         }

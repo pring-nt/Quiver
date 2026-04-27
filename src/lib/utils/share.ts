@@ -12,10 +12,7 @@ export function encodeData(data: any): string {
         const compressed = zlibSync(buf, { level: 9 }); // Maximum compression
 
         // Safely convert Uint8Array to binary string (avoids call stack limits on huge arrays)
-        let binString = '';
-        for (let i = 0; i < compressed.length; i++) {
-            binString += String.fromCharCode(compressed[i]);
-        }
+        const binString = Array.from(compressed, c => String.fromCharCode(c)).join('');
 
         // Base64URL encode for clean, URL-safe strings (no need for encodeURIComponent)
         return btoa(binString)
@@ -54,27 +51,23 @@ export function decodeData(encoded: string): any {
             normalizedBase64 += '=';
         }
 
-        // Attempt 1: Decompress and Parse (New Format)
-        try {
-            const binString = atob(normalizedBase64);
-            const bytes = new Uint8Array(binString.length);
-            for (let i = 0; i < binString.length; i++) {
-                bytes[i] = binString.charCodeAt(i);
-            }
-
-            const decompressed = unzlibSync(bytes);
-            const jsonStr = strFromU8(decompressed);
-            return JSON.parse(jsonStr);
-
-        } catch (err) {
-            // Attempt 2: Legacy Uncompressed Fallback (Old Format)
-            console.warn("Decompression failed, attempting legacy uncompressed decode...");
-            const legacyStr = decodeURIComponent(atob(base64Str));
-            return JSON.parse(legacyStr);
+        const binString = atob(normalizedBase64);
+        const bytes = new Uint8Array(binString.length);
+        for (let i = 0; i < binString.length; i++) {
+            bytes[i] = binString.charCodeAt(i);
         }
+        const decompressed = unzlibSync(bytes);
+        return JSON.parse(strFromU8(decompressed));
 
     } catch (e) {
         console.error("Decode error:", e);
         throw new Error("Invalid base64 string or URL.");
     }
+}
+
+export function generateShareUrl(data: any): string {
+    const encoded = encodeData(data);
+    const url = new URL(window.location.origin);
+    url.searchParams.set('import', encoded);
+    return url.toString();
 }
