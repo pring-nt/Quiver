@@ -2,16 +2,17 @@
     import {BaseDialog, DialogCard} from "$lib/components/layout/dialogs/index";
     import { Button } from '$lib/components/ui/button';
     import { Megaphone } from 'lucide-svelte';
+
     const announcements = [
+        {
+            title: "Courses Page is Fully Functional!",
+            description: "The Courses page is now completely functional! You can fully customize your courses and the class sections within them, and easily share or backup your progress using the new import and export data functionality."
+        },
         {
             title: "Custom Frieren: Beyond Journey's End Themes!",
             description: "Choose between Himmel, Frieren, Fern, and Stark to change the site appearance. " +
-                         "Each with their own respective dark modes"
+                "Each with their own respective dark modes"
         },
-        {
-            title: "The Announcements Dialog Itself",
-            description: "You wouldn't see this if I didn't implement this yet LOL"
-        }
     ];
 </script>
 
