@@ -236,31 +236,43 @@
 
                     <div class="flex flex-col gap-2 max-h-[250px] overflow-y-auto pr-2 rounded-md border border-border/50 bg-background/50 p-2 min-h-0">
                         {#each importQueue.conflicts as conflict}
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 rounded-md bg-card border border-border/50 shadow-sm gap-3 sm:gap-4 shrink-0">
-                                <span class="font-bold text-sm truncate text-center sm:text-left w-full sm:w-auto">{conflict.incoming.courseCode}</span>
+                            <div class="flex flex-col p-2.5 rounded-md bg-card border border-border/50 shadow-sm gap-2 shrink-0">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                                    <span class="font-bold text-sm truncate text-center sm:text-left w-full sm:w-auto">{conflict.incoming.courseCode}</span>
 
-                                <div class="flex bg-muted p-1 rounded-md shrink-0 w-full sm:w-auto">
-                                    <button
-                                            class="flex-1 sm:flex-none px-2 py-1 text-[11px] font-semibold rounded transition-colors {conflict.action === 'merge' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}"
-                                            onclick={() => conflict.action = 'merge'}>
-                                        Merge
-                                    </button>
-                                    <button
-                                            class="flex-1 sm:flex-none px-2 py-1 text-[11px] font-semibold rounded transition-colors {conflict.action === 'replace' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}"
-                                            onclick={() => conflict.action = 'replace'}>
-                                        Replace
-                                    </button>
-                                    <button
-                                            class="flex-1 sm:flex-none px-2 py-1 text-[11px] font-semibold rounded transition-colors {conflict.action === 'skip' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}"
-                                            onclick={() => conflict.action = 'skip'}>
-                                        Skip
-                                    </button>
+                                    <div class="flex bg-muted p-1 rounded-md shrink-0 w-full sm:w-auto">
+                                        <button
+                                                class="flex-1 sm:flex-none px-2 py-1 text-[11px] font-semibold rounded transition-colors {conflict.action === 'merge' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}"
+                                                onclick={() => conflict.action = 'merge'}>
+                                            Merge
+                                        </button>
+                                        <button
+                                                class="flex-1 sm:flex-none px-2 py-1 text-[11px] font-semibold rounded transition-colors {conflict.action === 'replace' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}"
+                                                onclick={() => conflict.action = 'replace'}>
+                                            Replace
+                                        </button>
+                                        <button
+                                                class="flex-1 sm:flex-none px-2 py-1 text-[11px] font-semibold rounded transition-colors {conflict.action === 'skip' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}"
+                                                onclick={() => conflict.action = 'skip'}>
+                                            Skip
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Description Box -->
+                                <div class="text-[11px] text-muted-foreground bg-accent/20 border border-border/30 p-1.5 px-2 rounded-sm text-center sm:text-left leading-tight">
+                                    {#if conflict.action === 'merge'}
+                                        <span class="font-semibold text-foreground">Merge:</span> Keeps your existing sections and adds any new ones.
+                                    {:else if conflict.action === 'replace'}
+                                        <span class="font-semibold text-foreground">Replace:</span> Overwrites the entire existing course and its sections.
+                                    {:else if conflict.action === 'skip'}
+                                        <span class="font-semibold text-foreground">Skip:</span> Ignores this incoming course completely.
+                                    {/if}
                                 </div>
                             </div>
                         {/each}
                     </div>
 
-                    <!-- Fixed Responsive Button Container -->
                     <div class="flex flex-col-reverse sm:flex-row gap-2 mt-2 pt-3 shrink-0 border-t border-destructive/10">
                         <Button variant="outline" class="w-full sm:flex-1 h-9 text-xs font-semibold bg-background" onclick={() => importQueue = null}>
                             Cancel Import

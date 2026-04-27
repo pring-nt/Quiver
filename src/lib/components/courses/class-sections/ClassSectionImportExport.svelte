@@ -150,9 +150,19 @@
             }
 
             if (conflict.action === 'duplicate') {
+                const baseName = conflict.incoming.section;
+                let newName = `${baseName} (Imported)`;
+                let counter = 1;
+
+                // Smart loop to guarantee a unique name even if duplicated multiple times
+                while (finalSections.some(s => s.section.toLowerCase() === newName.toLowerCase())) {
+                    counter++;
+                    newName = `${baseName} (Imported ${counter})`;
+                }
+
                 finalSections.push({
                     ...conflict.incoming,
-                    section: `${conflict.incoming.section} (Imported)` // Add a tag to prevent identical names
+                    section: newName
                 });
             }
         });
@@ -210,28 +220,41 @@
 
                     <div class="flex flex-col gap-2 max-h-[250px] overflow-y-auto pr-2 rounded-md border border-border/50 bg-background/50 p-2 min-h-0">
                         {#each importQueue.conflicts as conflict}
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 rounded-md bg-card border border-border/50 shadow-sm gap-3 sm:gap-4 shrink-0">
-                                <span class="font-bold text-sm truncate text-center sm:text-left w-full sm:w-auto">{conflict.incoming.section}</span>
+                            <div class="flex flex-col p-2.5 rounded-md bg-card border border-border/50 shadow-sm gap-2 shrink-0">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                                    <span class="font-bold text-sm truncate text-center sm:text-left w-full sm:w-auto">{conflict.incoming.section}</span>
 
-                                <div class="flex bg-muted p-1 rounded-md shrink-0 w-full sm:w-auto">
-                                    <button
-                                            type="button"
-                                            class="flex-1 sm:flex-none px-2 py-1 text-[11px] font-semibold rounded transition-colors {conflict.action === 'replace' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}"
-                                            onclick={() => conflict.action = 'replace'}>
-                                        Replace
-                                    </button>
-                                    <button
-                                            type="button"
-                                            class="flex-1 sm:flex-none px-2 py-1 text-[11px] font-semibold rounded transition-colors {conflict.action === 'duplicate' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}"
-                                            onclick={() => conflict.action = 'duplicate'}>
-                                        Duplicate
-                                    </button>
-                                    <button
-                                            type="button"
-                                            class="flex-1 sm:flex-none px-2 py-1 text-[11px] font-semibold rounded transition-colors {conflict.action === 'skip' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}"
-                                            onclick={() => conflict.action = 'skip'}>
-                                        Skip
-                                    </button>
+                                    <div class="flex bg-muted p-1 rounded-md shrink-0 w-full sm:w-auto">
+                                        <button
+                                                type="button"
+                                                class="flex-1 sm:flex-none px-2 py-1 text-[11px] font-semibold rounded transition-colors {conflict.action === 'replace' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}"
+                                                onclick={() => conflict.action = 'replace'}>
+                                            Replace
+                                        </button>
+                                        <button
+                                                type="button"
+                                                class="flex-1 sm:flex-none px-2 py-1 text-[11px] font-semibold rounded transition-colors {conflict.action === 'duplicate' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}"
+                                                onclick={() => conflict.action = 'duplicate'}>
+                                            Duplicate
+                                        </button>
+                                        <button
+                                                type="button"
+                                                class="flex-1 sm:flex-none px-2 py-1 text-[11px] font-semibold rounded transition-colors {conflict.action === 'skip' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}"
+                                                onclick={() => conflict.action = 'skip'}>
+                                            Skip
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Description Box -->
+                                <div class="text-[11px] text-muted-foreground bg-accent/20 border border-border/30 p-1.5 px-2 rounded-sm text-center sm:text-left leading-tight">
+                                    {#if conflict.action === 'replace'}
+                                        <span class="font-semibold text-foreground">Replace:</span> Overwrites your existing section with this new one.
+                                    {:else if conflict.action === 'duplicate'}
+                                        <span class="font-semibold text-foreground">Duplicate:</span> Keeps your old section, adds this one as a unique copy.
+                                    {:else if conflict.action === 'skip'}
+                                        <span class="font-semibold text-foreground">Skip:</span> Ignores this incoming section completely.
+                                    {/if}
                                 </div>
                             </div>
                         {/each}
