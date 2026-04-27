@@ -24,7 +24,18 @@
     $effect(() => {
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
-            urlImportParam = params.get('import');
+            const param = params.get('import');
+            if (param) {
+                try {
+                    // Peek at the payload to ensure it's actually class section data
+                    const decoded = decodeData(param);
+                    if (decoded && (Array.isArray(decoded) || 'section' in decoded)) {
+                        urlImportParam = param;
+                    }
+                } catch (e) {
+                    // Ignore invalid params or global data
+                }
+            }
         }
     });
 
@@ -118,6 +129,12 @@
                 data = JSON.parse(trimmed);
             } else {
                 data = decodeData(trimmed);
+            }
+
+            // Smart routing: Prevent Global Data from being imported here
+            if (data && !Array.isArray(data) && ('courses' in data || 'groups' in data)) {
+                toast.error("This looks like Global Curriculum data. Please import it from the main Course List menu.");
+                return;
             }
 
             const items = Array.isArray(data) ? data : [data];
@@ -219,7 +236,7 @@
         executeImport(importQueue.newSections, importQueue.conflicts);
     }
 
-    // Helper wrapper to safely trigger url imports without ! non-null assertion inline
+    // Helper wrapper to safely trigger url imports without non-null assertion inline
     function handleUrlImport() {
         if (urlImportParam) {
             processImportData(urlImportParam);
@@ -244,14 +261,14 @@
     {/snippet}
 
     {#snippet children()}
-        <div class="flex flex-col gap-6 pb-6">
+        <div class="flex flex-col gap-6 pb-6 min-w-0">
 
             <!-- Conflict Resolution UI -->
             {#if importQueue}
-                <div class="flex flex-col gap-4 p-4 border border-destructive/50 rounded-lg bg-destructive/5 shadow-sm animate-in fade-in zoom-in-95">
+                <div class="flex flex-col gap-4 p-4 border border-destructive/50 rounded-lg bg-destructive/5 shadow-sm animate-in fade-in zoom-in-95 min-w-0">
                     <div class="flex items-start gap-3 shrink-0">
                         <CircleAlert size={20} class="text-destructive mt-0.5 shrink-0" />
-                        <div class="flex flex-col gap-1">
+                        <div class="flex flex-col gap-1 min-w-0">
                             <h4 class="font-bold text-sm tracking-tight text-destructive">Import Conflicts Detected</h4>
                             <p class="text-xs text-muted-foreground">
                                 {importQueue.conflicts.length} section(s) from your import already exist in {course.courseCode}. How would you like to handle them?
@@ -261,9 +278,9 @@
 
                     <div class="flex flex-col gap-2 max-h-[250px] overflow-y-auto pr-2 rounded-md border border-border/50 bg-background/50 p-2 min-h-0">
                         {#each importQueue.conflicts as conflict}
-                            <div class="flex flex-col p-2.5 rounded-md bg-card border border-border/50 shadow-sm gap-2 shrink-0">
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                                    <span class="font-bold text-sm truncate text-center sm:text-left w-full sm:w-auto">{conflict.incoming.section}</span>
+                            <div class="flex flex-col p-2.5 rounded-md bg-card border border-border/50 shadow-sm gap-2 shrink-0 min-w-0">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 min-w-0">
+                                    <span class="font-bold text-sm truncate text-center sm:text-left flex-1 min-w-0" title={conflict.incoming.section}>{conflict.incoming.section}</span>
 
                                     <div class="flex bg-muted p-1 rounded-md shrink-0 w-full sm:w-auto">
                                         <button
