@@ -119,7 +119,7 @@
             return;
         }
 
-        const updatedSection = parsed.data;
+        const updatedSection = parsed.data as ClassSection;
 
         // Update the existing section in the store instead of adding a new one
         coursesStore.update(all => all.map(c =>

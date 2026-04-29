@@ -10,7 +10,7 @@
 
     import { coursesStore, classSectionSchema } from '$lib/stores/courses';
     import type { Course } from '$lib/stores/courses';
-    import type { Modality, Day } from '$lib/types';
+    import type { Modality, Day, ClassSection } from '$lib/types';
 
     let { course }: { course: Course } = $props();
 
@@ -111,7 +111,7 @@
             return;
         }
 
-        const newSection = parsed.data;
+        const newSection = parsed.data as ClassSection;
 
         // Push to Store
         coursesStore.update(all => all.map(c =>
