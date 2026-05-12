@@ -46,18 +46,40 @@ export const daySlotSchema = z.object({
 });
 
 export const classSectionSchema = z.object({
-    id: z.string(),
+    id: z.string().optional(),
     code: z.string(),
     section: z.string().min(1, "Section code is required"),
     professor: z.string().min(1, "Professor name is required"),
     modality: z.string(),
     remarks: z.string().optional(),
     slots: z.array(daySlotSchema).min(1, "At least one schedule slot is required")
+}).refine(data => {
+    // Cross-check all slots for overlaps on the same day
+    const slots = data.slots;
+    for (let i = 0; i < slots.length; i++) {
+        for (let j = i + 1; j < slots.length; j++) {
+            if (slots[i].day === slots[j].day) {
+                const start1 = parseInt(slots[i].startTime.replace(':', ''), 10);
+                const end1 = parseInt(slots[i].endTime.replace(':', ''), 10);
+                const start2 = parseInt(slots[j].startTime.replace(':', ''), 10);
+                const end2 = parseInt(slots[j].endTime.replace(':', ''), 10);
+
+                // If they strictly overlap
+                if (start1 < end2 && end1 > start2) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}, {
+    message: "Time slots on the same day cannot overlap or be identical.",
+    path: ["slots"]
 });
 
 // Validation for course groups
 export const courseGroupSchema = z.object({
-    id: z.string(),
+    id: z.string().optional(),
     name: z.string(),
     sectionIds: z.array(z.string()).optional().default([]),
     pickCount: z.number().optional().default(1)
@@ -65,7 +87,7 @@ export const courseGroupSchema = z.object({
 
 // Validation for full course (with sections)
 export const courseSchema = z.object({
-    id: z.string(),
+    id: z.string().optional(),
     courseCode: z.string(),
     sections: z.array(classSectionSchema).optional().default([]),
     groupId: z.string().optional()
@@ -76,6 +98,35 @@ export const globalDataSchema = z.object({
     groups: z.array(courseGroupSchema).optional().default([]),
     courses: z.array(courseSchema).optional().default([])
 });
+
+// Run migration before the store initializes
+if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('QUIVER_COURSES_LIST');
+    if (stored) {
+        try {
+            const parsed = JSON.parse(stored);
+            let migrated = false;
+
+            // Traverse the raw parsed object and mutate the days
+            parsed.forEach((course: any) => {
+                course.sections?.forEach((section: any) => {
+                    section.slots?.forEach((slot: any) => {
+                        if (slot.day === 'Th') { slot.day = 'H'; migrated = true; }
+                        if (slot.day === 'Su') { slot.day = 'U'; migrated = true; }
+                    });
+                });
+            });
+
+            // If changes were made, save it back to localStorage instantly
+            if (migrated) {
+                localStorage.setItem('QUIVER_COURSES_LIST', JSON.stringify(parsed));
+                console.log("Migration successful: Updated days to 'H' and 'U'");
+            }
+        } catch(e) {
+            console.error("Failed to migrate legacy Day enums:", e);
+        }
+    }
+}
 
 // Global Stores
 export const coursesStore = persisted<Course[]>('QUIVER_COURSES_LIST', []);

@@ -19,7 +19,7 @@
 
     import { coursesStore, selectedSectionsStore } from '$lib/stores/courses';
     import type { Course } from '$lib/stores/courses';
-    import type { Day } from '$lib/types';
+    import type { Day, DaySlot } from '$lib/types';
 
     import { getSchedules, getDays, getRooms } from '$lib/utils/scheduleHelpers';
     import { TableFilter, SortableColumn, RowActions } from '$lib/components/courses/class-sections'
@@ -40,7 +40,7 @@
     // Dynamically extract unique values for the dropdowns
     let uniqueSections = $derived([...new Set(course.sections?.map(s => s.section) || [])].sort());
     let uniqueProfessors = $derived([...new Set(course.sections?.map(s => s.professor).filter(Boolean) || [])].sort());
-    let uniqueDays: Day[] = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su'];
+    let uniqueDays: Day[] = ['M', 'T', 'W', 'H', 'F', 'S', 'U'];
     let uniqueSchedules = $derived([...new Set(course.sections?.flatMap(s => getSchedules(s.slots)) || [])].sort());
     let uniqueModalities = $derived([...new Set(course.sections?.map(s => s.modality).filter(Boolean) || [])].sort());
 
@@ -125,7 +125,14 @@
     );
 
     // Day label mapper for the Days TableFilter
-    const getDayLabel = (opt: Day) => opt === 'Th' ? 'Thursday' : opt === 'Su' ? 'Sunday' : opt === 'M' ? 'Monday' : opt === 'T' ? 'Tuesday' : opt === 'W' ? 'Wednesday' : opt === 'F' ? 'Friday' : 'Saturday';
+    const getDayLabel = (opt: Day) => opt === 'H' ? 'Thursday' : opt === 'U' ? 'Sunday' : opt === 'M' ? 'Monday' : opt === 'T' ? 'Tuesday' : opt === 'W' ? 'Wednesday' : opt === 'F' ? 'Friday' : 'Saturday';
+
+    // Helper for Room/Online stacking display ordered by Day
+    const DAY_ORDER: Record<string, number> = { 'M': 1, 'T': 2, 'W': 3, 'H': 4, 'F': 5, 'S': 6, 'U': 7 };
+    function getSortedSlots(slots: DaySlot[]) {
+        if (!slots) return [];
+        return [...slots].sort((a, b) => (DAY_ORDER[a.day] || 99) - (DAY_ORDER[b.day] || 99));
+    }
 </script>
 
 <div class="rounded-xl border border-border/50 bg-card/60 shadow-sm flex flex-col h-full overflow-hidden relative backdrop-blur-sm">
@@ -172,7 +179,7 @@
                         </Table.Head>
 
                         <Table.Head class="h-11 px-4 text-left align-middle text-xs font-bold uppercase tracking-wider text-muted-foreground">Schedules</Table.Head>
-                        <Table.Head class="h-11 px-4 text-left align-middle text-xs font-bold uppercase tracking-wider text-muted-foreground w-[120px]">Room</Table.Head>
+                        <Table.Head class="h-11 px-4 text-left align-middle text-xs font-bold uppercase tracking-wider text-muted-foreground w-[150px]">Room</Table.Head>
                         <Table.Head class="h-11 px-4 text-left align-middle text-xs font-bold uppercase tracking-wider text-muted-foreground w-20">Days</Table.Head>
                         <Table.Head class="h-11 px-4 text-left align-middle text-xs font-bold uppercase tracking-wider text-muted-foreground">Remarks</Table.Head>
                         <Table.Head class="h-11 px-4 w-12 text-center align-middle"></Table.Head>
@@ -201,11 +208,30 @@
                                     {/if}
                                 </div>
                             </Table.Cell>
-                            <Table.Cell class="p-3 px-4 align-middle text-sm font-medium">{getRooms(row.original.slots)}</Table.Cell>
+                            <Table.Cell class="p-3 px-4 align-middle">
+                                <div class="flex flex-col gap-1">
+                                    {#each getSortedSlots(row.original.slots) as slot}
+                                        <div class="border text-xs whitespace-nowrap shrink-0 flex w-[130px] select-none items-center justify-start gap-2 rounded-md p-1.5 px-3 font-semibold transition-colors {slot.isOnline ? 'text-primary bg-primary/10 border-primary/20' : 'text-foreground bg-accent/20 border-border/60'}">
+                                            <span class="w-4 text-center shrink-0 {slot.isOnline ? 'text-primary/70' : 'text-muted-foreground'}">{slot.day}</span>
+                                            <div class="w-px h-3 shrink-0 {slot.isOnline ? 'bg-primary/30' : 'bg-border/60'}"></div>
+                                            <div class="flex items-center gap-1.5 truncate">
+                                                {#if slot.isOnline}
+                                                    <Monitor size={12} class="shrink-0" />
+                                                    <span class="truncate">Online</span>
+                                                {:else}
+                                                    <span class="truncate">{slot.room || 'TBA'}</span>
+                                                {/if}
+                                            </div>
+                                        </div>
+                                    {/each}
+                                    {#if getSortedSlots(row.original.slots).length === 0}
+                                        <span class="text-muted-foreground/60 italic text-xs font-medium">TBA</span>
+                                    {/if}
+                                </div>
+                            </Table.Cell>
                             <Table.Cell class="p-3 px-4 align-middle font-bold text-muted-foreground">{getDays(row.original.slots)}</Table.Cell>
                             <Table.Cell class="p-3 px-4 align-middle text-sm text-muted-foreground max-w-[200px] truncate" title={row.original.remarks}>{row.original.remarks || '-'}</Table.Cell>
                             <Table.Cell class="p-3 px-4 align-middle text-right">
-                                <!-- Abstracted Row Actions -->
                                 <RowActions {course} section={row.original} />
                             </Table.Cell>
                         </Table.Row>

@@ -40,6 +40,7 @@
 	"dependencies": {
 		"@fontsource-variable/manrope": "^5.2.8",
 		"@tanstack/table-core": "^8.21.3",
+		"fflate": "^0.8.2",
 		"lucide-svelte": "^1.0.1",
 		"mode-watcher": "^1.1.0",
 		"svelte-dnd-action": "^0.9.69",

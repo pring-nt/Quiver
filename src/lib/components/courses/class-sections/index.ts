@@ -5,3 +5,4 @@ export { default as SectionEditDialog } from './SectionEditDialog.svelte';
 export { default as RowActions} from './RowActions.svelte';
 export { default as SortableColumn} from './SortableColumn.svelte';
 export { default as TableFilter } from './TableFilter.svelte';
+export { default as ClassSectionConflictResolution } from './ClassSectionConflictResolution.svelte';

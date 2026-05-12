@@ -1,6 +1,6 @@
 <script lang="ts">
     import { dndzone } from 'svelte-dnd-action';
-    import { coursesStore } from '$lib/stores/courses';
+    import { coursesStore, selectedSectionsStore } from '$lib/stores/courses';
     import { CourseListMenu, CourseListItem } from '$lib/components/courses';
     import { ScrollArea } from '$lib/components/ui/scroll-area';
     import { Button } from '$lib/components/ui/button';
@@ -35,8 +35,21 @@
 
     // Actions
     function deleteCourse(id: string) {
+        // 1. Find the course first so we know which sections to clean up
+        const courseToDelete = $coursesStore.find(c => c.id === id);
+
+        // 2. Remove the course from the main store
         $coursesStore = $coursesStore.filter(c => c.id !== id);
         if (activeCourseId === id) activeCourseId = null;
+
+        // 3. Purge the ghost IDs from the selected sections memory!
+        if (courseToDelete && courseToDelete.sections) {
+            selectedSectionsStore.update(sel => {
+                const next = { ...sel };
+                courseToDelete.sections.forEach(s => delete next[s.id]);
+                return next;
+            });
+        }
     }
 </script>
 

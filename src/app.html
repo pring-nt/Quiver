@@ -9,6 +9,28 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+		<script>
+			(function() {
+				try {
+					const styleStr = localStorage.getItem('STYLE_PREFERENCE');
+					const theme = styleStr ? JSON.parse(styleStr) : 'himmel';
+					document.documentElement.setAttribute('data-theme', theme);
+
+					const darkStr = localStorage.getItem('DARK_PREFERENCE');
+					const isDark = darkStr ? JSON.parse(darkStr) : window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+					if (isDark) {
+						document.documentElement.classList.add('dark');
+					} else {
+						document.documentElement.classList.remove('dark');
+					}
+				} catch (e) {
+					// Fallback to safe defaults if localStorage is disabled or corrupted
+					document.documentElement.setAttribute('data-theme', 'himmel');
+				}
+			})();
+		</script>
+
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

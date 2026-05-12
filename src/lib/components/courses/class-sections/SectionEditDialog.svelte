@@ -45,13 +45,12 @@
         // Grab the last slot to copy its values
         const prev = slots.length > 0 ? slots[slots.length - 1] : null;
 
-        // Smart day pairing (M -> W, T -> Th, etc.)
+        // Smart day pairing (M -> H, T -> F, etc.)
         let nextDay: Day = 'M';
         if (prev) {
-            if (prev.day === 'M') nextDay = 'W';
-            else if (prev.day === 'T') nextDay = 'Th';
-            else if (prev.day === 'W') nextDay = 'F';
-            else if (prev.day === 'Th') nextDay = 'S';
+            if (prev.day === 'M') nextDay = 'H';
+            else if (prev.day === 'T') nextDay = 'F';
+            else if (prev.day === 'W') nextDay = 'S';
             else nextDay = prev.day;
         }
 
@@ -69,6 +68,12 @@
         slots = slots.filter(s => s.id !== id);
     }
 
+    // Helper to precisely calculate overlapping times (Minutes since midnight)
+    function getMinutes(timeStr: string) {
+        return parseInt(timeStr.slice(0, 2), 10) * 60 + parseInt(timeStr.slice(2, 4), 10);
+    }
+
+    // Custom Time Validation for HHMM + Overlap checking
     function validateTimes() {
         for (const slot of slots) {
             const start = slot.startTime;
@@ -86,10 +91,37 @@
             if (startH > 23 || startM > 59) return `Invalid start time (${start}) on ${slot.day}.`;
             if (endH > 23 || endM > 59) return `Invalid end time (${end}) on ${slot.day}.`;
 
-            if (parseInt(start, 10) >= parseInt(end, 10)) {
+            if (getMinutes(start) >= getMinutes(end)) {
                 return `End time (${end}) must be after start time (${start}) on ${slot.day}.`;
             }
         }
+
+        // Overlap and Identical Slot Check
+        for (let i = 0; i < slots.length; i++) {
+            for (let j = i + 1; j < slots.length; j++) {
+                const s1 = slots[i];
+                const s2 = slots[j];
+
+                if (s1.day === s2.day) {
+                    // 1. Prevent identically cloned slots
+                    if (s1.startTime === s2.startTime && s1.endTime === s2.endTime) {
+                        return `You have identical duplicate time slots on ${s1.day} (${s1.startTime}-${s1.endTime}). Please remove or edit one.`;
+                    }
+
+                    // 2. Prevent overlapping times (but seamlessly allow back-to-back non-overlapping slots)
+                    const start1 = getMinutes(s1.startTime);
+                    const end1 = getMinutes(s1.endTime);
+                    const start2 = getMinutes(s2.startTime);
+                    const end2 = getMinutes(s2.endTime);
+
+                    // Strictly overlapping logic: start1 < end2 AND end1 > start2
+                    if (start1 < end2 && end1 > start2) {
+                        return `Time slots on ${s1.day} cannot overlap (${s1.startTime}-${s1.endTime} & ${s2.startTime}-${s2.endTime}).`;
+                    }
+                }
+            }
+        }
+
         return null;
     }
 
@@ -103,6 +135,13 @@
             return;
         }
 
+        // Format HHMM -> HH:MM before passing to Zod and Store
+        const transformedSlots = slots.map(({id, ...rest}) => ({
+            ...rest,
+            startTime: `${rest.startTime.slice(0, 2)}:${rest.startTime.slice(2, 4)}`,
+            endTime: `${rest.endTime.slice(0, 2)}:${rest.endTime.slice(2, 4)}`
+        }));
+
         const payload = {
             id: sectionData.id, // Maintain the original ID to overwrite
             code: course.courseCode,
@@ -110,7 +149,7 @@
             professor: professor.trim(),
             modality,
             remarks: remarks.trim(),
-            slots: slots.map(({id, ...rest}) => rest) // Just strip the UI id
+            slots: transformedSlots
         };
 
         const parsed = classSectionSchema.safeParse(payload);
@@ -119,7 +158,7 @@
             return;
         }
 
-        const updatedSection = parsed.data;
+        const updatedSection = parsed.data as ClassSection;
 
         // Update the existing section in the store instead of adding a new one
         coursesStore.update(all => all.map(c =>
@@ -189,7 +228,7 @@
                                             {slot.day}
                                         </Select.Trigger>
                                         <Select.Content>
-                                            {#each ['M','T','W','Th','F','S','Su'] as d}
+                                            {#each ['M','T','W','H','F','S','U'] as d}
                                                 <Select.Item value={d}>{d}</Select.Item>
                                             {/each}
                                         </Select.Content>
