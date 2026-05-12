@@ -29,34 +29,19 @@
     ]);
 
     function addSlot() {
-        // Grab the last slot to copy its values
-        const prev = slots.length > 0 ? slots[slots.length - 1] : null;
-
-        // Smart day pairing (M -> W, T -> Th, etc.)
-        let nextDay: Day = 'M';
-        if (prev) {
-            if (prev.day === 'M') nextDay = 'W';
-            else if (prev.day === 'T') nextDay = 'Th';
-            else if (prev.day === 'W') nextDay = 'F';
-            else if (prev.day === 'Th') nextDay = 'S';
-            else nextDay = prev.day;
-        }
-
-        slots = [...slots, {
-            id: crypto.randomUUID(),
-            day: nextDay,
-            startTime: prev ? prev.startTime : '0800',
-            endTime: prev ? prev.endTime : '0930',
-            room: prev ? prev.room : '',
-            isOnline: prev ? prev.isOnline : false
-        }];
+        slots = [...slots, { id: crypto.randomUUID(), day: 'M', startTime: '0800', endTime: '0930', room: '', isOnline: false }];
     }
 
     function removeSlot(id: string) {
         slots = slots.filter(s => s.id !== id);
     }
 
-    // Custom Time Validation for HHMM
+    // Helper to precisely calculate overlapping times (Minutes since midnight)
+    function getMinutes(timeStr: string) {
+        return parseInt(timeStr.slice(0, 2), 10) * 60 + parseInt(timeStr.slice(2, 4), 10);
+    }
+
+    // Custom Time Validation for HHMM + Overlap checking
     function validateTimes() {
         for (const slot of slots) {
             const start = slot.startTime;
@@ -74,10 +59,37 @@
             if (startH > 23 || startM > 59) return `Invalid start time (${start}) on ${slot.day}.`;
             if (endH > 23 || endM > 59) return `Invalid end time (${end}) on ${slot.day}.`;
 
-            if (parseInt(start, 10) >= parseInt(end, 10)) {
+            if (getMinutes(start) >= getMinutes(end)) {
                 return `End time (${end}) must be after start time (${start}) on ${slot.day}.`;
             }
         }
+
+        // Overlap and Identical Slot Check
+        for (let i = 0; i < slots.length; i++) {
+            for (let j = i + 1; j < slots.length; j++) {
+                const s1 = slots[i];
+                const s2 = slots[j];
+
+                if (s1.day === s2.day) {
+                    // 1. Prevent identically cloned slots
+                    if (s1.startTime === s2.startTime && s1.endTime === s2.endTime) {
+                        return `You have identical duplicate time slots on ${s1.day} (${s1.startTime}-${s1.endTime}). Please remove or edit one.`;
+                    }
+
+                    // 2. Prevent overlapping times (but seamlessly allow back-to-back non-overlapping slots)
+                    const start1 = getMinutes(s1.startTime);
+                    const end1 = getMinutes(s1.endTime);
+                    const start2 = getMinutes(s2.startTime);
+                    const end2 = getMinutes(s2.endTime);
+
+                    // Strictly overlapping logic: start1 < end2 AND end1 > start2
+                    if (start1 < end2 && end1 > start2) {
+                        return `Time slots on ${s1.day} cannot overlap (${s1.startTime}-${s1.endTime} & ${s2.startTime}-${s2.endTime}).`;
+                    }
+                }
+            }
+        }
+
         return null;
     }
 
@@ -92,8 +104,13 @@
             return;
         }
 
-        // We don't need to manually slice the time strings here anymore!
-        // Our smarter Zod schema in courses.ts handles the HHMM to HH:MM transformation automatically.
+        // Format HHMM -> HH:MM before passing to Zod and Store
+        const transformedSlots = slots.map(({id, ...rest}) => ({
+            ...rest,
+            startTime: `${rest.startTime.slice(0, 2)}:${rest.startTime.slice(2, 4)}`,
+            endTime: `${rest.endTime.slice(0, 2)}:${rest.endTime.slice(2, 4)}`
+        }));
+
         const payload = {
             id: crypto.randomUUID(),
             code: course.courseCode,
@@ -101,7 +118,7 @@
             professor: professor.trim(),
             modality,
             remarks: remarks.trim(),
-            slots: slots.map(({id, ...rest}) => rest) // Just strip the UI id
+            slots: transformedSlots
         };
 
         // Zod Validation
@@ -143,7 +160,7 @@
             <div class="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg border border-border/50">
                 <div class="flex flex-col gap-1.5">
                     <label for="section" class="text-xs font-bold text-muted-foreground uppercase">Section Code</label>
-                    <Input id="section" bind:value={section} placeholder="e.g. S18" required class="font-medium bg-background shadow-sm" />
+                    <Input id="section" bind:value={section} placeholder="e.g. TN12" required class="font-medium bg-background shadow-sm" />
                 </div>
                 <div class="flex flex-col gap-1.5">
                     <label for="modality" class="text-xs font-bold text-muted-foreground uppercase">Modality</label>
@@ -162,7 +179,7 @@
                 </div>
                 <div class="flex flex-col gap-1.5 col-span-2">
                     <label for="professor" class="text-xs font-bold text-muted-foreground uppercase">Professor</label>
-                    <Input id="professor" bind:value={professor} placeholder="e.g. Alexander Hamilton" required class="font-medium bg-background shadow-sm" />
+                    <Input id="professor" bind:value={professor} placeholder="e.g. Shirley Chu" required class="font-medium bg-background shadow-sm" />
                 </div>
             </div>
 
@@ -197,11 +214,11 @@
                                 </div>
                                 <div class="flex flex-col gap-1.5">
                                     <label for={`start-${slot.id}`} class="text-[10px] font-bold text-muted-foreground uppercase">Start <span class="font-normal opacity-50">(HHMM)</span></label>
-                                    <Input id={`start-${slot.id}`} type="text" inputmode="numeric" maxlength={4} placeholder="0800" bind:value={slot.startTime} class="h-8 text-xs px-2 font-medium shadow-sm" required />
+                                    <Input id={`start-${slot.id}`} type="text" inputmode="numeric" pattern="[0-9]{4}" maxlength={4} placeholder="0800" bind:value={slot.startTime} class="h-8 text-xs px-2 font-medium shadow-sm" required />
                                 </div>
                                 <div class="flex flex-col gap-1.5">
                                     <label for={`end-${slot.id}`} class="text-[10px] font-bold text-muted-foreground uppercase">End <span class="font-normal opacity-50">(HHMM)</span></label>
-                                    <Input id={`end-${slot.id}`} type="text" inputmode="numeric" maxlength={4} placeholder="0930" bind:value={slot.endTime} class="h-8 text-xs px-2 font-medium shadow-sm" required />
+                                    <Input id={`end-${slot.id}`} type="text" inputmode="numeric" pattern="[0-9]{4}" maxlength={4} placeholder="0930" bind:value={slot.endTime} class="h-8 text-xs px-2 font-medium shadow-sm" required />
                                 </div>
                             </div>
 

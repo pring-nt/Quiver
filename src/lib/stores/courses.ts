@@ -53,6 +53,28 @@ export const classSectionSchema = z.object({
     modality: z.string(),
     remarks: z.string().optional(),
     slots: z.array(daySlotSchema).min(1, "At least one schedule slot is required")
+}).refine(data => {
+    // Cross-check all slots for overlaps on the same day
+    const slots = data.slots;
+    for (let i = 0; i < slots.length; i++) {
+        for (let j = i + 1; j < slots.length; j++) {
+            if (slots[i].day === slots[j].day) {
+                const start1 = parseInt(slots[i].startTime.replace(':', ''), 10);
+                const end1 = parseInt(slots[i].endTime.replace(':', ''), 10);
+                const start2 = parseInt(slots[j].startTime.replace(':', ''), 10);
+                const end2 = parseInt(slots[j].endTime.replace(':', ''), 10);
+
+                // If they strictly overlap
+                if (start1 < end2 && end1 > start2) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}, {
+    message: "Time slots on the same day cannot overlap or be identical.",
+    path: ["slots"]
 });
 
 // Validation for course groups
