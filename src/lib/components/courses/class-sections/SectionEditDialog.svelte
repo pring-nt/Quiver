@@ -45,13 +45,12 @@
         // Grab the last slot to copy its values
         const prev = slots.length > 0 ? slots[slots.length - 1] : null;
 
-        // Smart day pairing (M -> W, T -> Th, etc.)
+        // Smart day pairing (M -> H, T -> F, etc.)
         let nextDay: Day = 'M';
         if (prev) {
-            if (prev.day === 'M') nextDay = 'W';
-            else if (prev.day === 'T') nextDay = 'Th';
-            else if (prev.day === 'W') nextDay = 'F';
-            else if (prev.day === 'Th') nextDay = 'S';
+            if (prev.day === 'M') nextDay = 'H';
+            else if (prev.day === 'T') nextDay = 'F';
+            else if (prev.day === 'W') nextDay = 'S';
             else nextDay = prev.day;
         }
 
@@ -229,7 +228,7 @@
                                             {slot.day}
                                         </Select.Trigger>
                                         <Select.Content>
-                                            {#each ['M','T','W','Th','F','S','Su'] as d}
+                                            {#each ['M','T','W','H','F','S','U'] as d}
                                                 <Select.Item value={d}>{d}</Select.Item>
                                             {/each}
                                         </Select.Content>

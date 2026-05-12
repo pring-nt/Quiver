@@ -99,6 +99,35 @@ export const globalDataSchema = z.object({
     courses: z.array(courseSchema).optional().default([])
 });
 
+// Run migration before the store initializes
+if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('QUIVER_COURSES_LIST');
+    if (stored) {
+        try {
+            const parsed = JSON.parse(stored);
+            let migrated = false;
+
+            // Traverse the raw parsed object and mutate the days
+            parsed.forEach((course: any) => {
+                course.sections?.forEach((section: any) => {
+                    section.slots?.forEach((slot: any) => {
+                        if (slot.day === 'Th') { slot.day = 'H'; migrated = true; }
+                        if (slot.day === 'Su') { slot.day = 'U'; migrated = true; }
+                    });
+                });
+            });
+
+            // If changes were made, save it back to localStorage instantly
+            if (migrated) {
+                localStorage.setItem('QUIVER_COURSES_LIST', JSON.stringify(parsed));
+                console.log("Migration successful: Updated days to 'H' and 'U'");
+            }
+        } catch(e) {
+            console.error("Failed to migrate legacy Day enums:", e);
+        }
+    }
+}
+
 // Global Stores
 export const coursesStore = persisted<Course[]>('QUIVER_COURSES_LIST', []);
 export const groupsStore = persisted<CourseGroup[]>('QUIVER_GROUPS_LIST', []);

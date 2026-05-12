@@ -1,4 +1,4 @@
-export type Day = 'M' | 'T' | 'W' | 'Th' | 'F' | 'S' | 'Su';
+export type Day = 'M' | 'T' | 'W' | 'H' | 'F' | 'S' | 'U';
 
 export type Modality =
     | 'F2F'

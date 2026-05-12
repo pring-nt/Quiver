@@ -40,7 +40,7 @@
     // Dynamically extract unique values for the dropdowns
     let uniqueSections = $derived([...new Set(course.sections?.map(s => s.section) || [])].sort());
     let uniqueProfessors = $derived([...new Set(course.sections?.map(s => s.professor).filter(Boolean) || [])].sort());
-    let uniqueDays: Day[] = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su'];
+    let uniqueDays: Day[] = ['M', 'T', 'W', 'H', 'F', 'S', 'U'];
     let uniqueSchedules = $derived([...new Set(course.sections?.flatMap(s => getSchedules(s.slots)) || [])].sort());
     let uniqueModalities = $derived([...new Set(course.sections?.map(s => s.modality).filter(Boolean) || [])].sort());
 
@@ -125,10 +125,10 @@
     );
 
     // Day label mapper for the Days TableFilter
-    const getDayLabel = (opt: Day) => opt === 'Th' ? 'Thursday' : opt === 'Su' ? 'Sunday' : opt === 'M' ? 'Monday' : opt === 'T' ? 'Tuesday' : opt === 'W' ? 'Wednesday' : opt === 'F' ? 'Friday' : 'Saturday';
+    const getDayLabel = (opt: Day) => opt === 'H' ? 'Thursday' : opt === 'U' ? 'Sunday' : opt === 'M' ? 'Monday' : opt === 'T' ? 'Tuesday' : opt === 'W' ? 'Wednesday' : opt === 'F' ? 'Friday' : 'Saturday';
 
     // Helper for Room/Online stacking display ordered by Day
-    const DAY_ORDER: Record<string, number> = { 'M': 1, 'T': 2, 'W': 3, 'Th': 4, 'F': 5, 'S': 6, 'Su': 7 };
+    const DAY_ORDER: Record<string, number> = { 'M': 1, 'T': 2, 'W': 3, 'H': 4, 'F': 5, 'S': 6, 'U': 7 };
     function getSortedSlots(slots: DaySlot[]) {
         if (!slots) return [];
         return [...slots].sort((a, b) => (DAY_ORDER[a.day] || 99) - (DAY_ORDER[b.day] || 99));
