@@ -1,64 +1,74 @@
 import { strToU8, strFromU8, zlibSync, unzlibSync } from 'fflate';
 
-/**
- * Safely compresses and encodes any JSON-compatible object into a URL-friendly Base64 string.
- */
+const KEY_MAP: Record<string, string> = {
+    courses: 'c', groups: 'g', sections: 's', slots: 'sl',
+    courseCode: 'cc', groupId: 'gi', sectionIds: 'si', pickCount: 'pc',
+    section: 'sc', professor: 'p', modality: 'm', remarks: 'r',
+    day: 'd', startTime: 'st', endTime: 'et', room: 'rm', isOnline: 'o',
+    id: 'i', name: 'n'
+};
+
+const KEY_UNMAP = Object.fromEntries(Object.entries(KEY_MAP).map(([k, v]) => [v, k]));
+
+function minify(obj: any): any {
+    if (Array.isArray(obj)) return obj.map(minify);
+    if (obj && typeof obj === 'object') {
+        return Object.fromEntries(
+            Object.entries(obj)
+                .filter(([, v]) =>
+                        v !== '' &&
+                        !(Array.isArray(v) && v.length === 0)
+                )
+                .map(([k, v]) => [KEY_MAP[k] ?? k, minify(v)])
+        );
+    }
+    return obj;
+}
+
+function unminify(obj: any): any {
+    if (Array.isArray(obj)) return obj.map(unminify);
+    if (obj && typeof obj === 'object') {
+        return Object.fromEntries(
+            Object.entries(obj).map(([k, v]) => [KEY_UNMAP[k] ?? k, unminify(v)])
+        );
+    }
+    return obj;
+}
+
 export function encodeData(data: any): string {
     try {
-        const jsonStr = JSON.stringify(data);
-
-        // Convert string to Uint8Array and compress
-        const buf = strToU8(jsonStr);
-        const compressed = zlibSync(buf, { level: 9 }); // Maximum compression
-
-        // Safely convert Uint8Array to binary string (avoids call stack limits on huge arrays)
+        const jsonStr = JSON.stringify(minify(data));
+        const compressed = zlibSync(strToU8(jsonStr), { level: 9 });
         const binString = Array.from(compressed, c => String.fromCharCode(c)).join('');
-
-        // Base64URL encode for clean, URL-safe strings (no need for encodeURIComponent)
         return btoa(binString)
             .replace(/\+/g, '-')
             .replace(/\//g, '_')
             .replace(/=+$/, '');
-
     } catch (e) {
         console.error("Failed to encode data:", e);
         throw new Error("Could not compress and encode data for sharing.");
     }
 }
 
-/**
- * Decodes a Base64 string, extracts it from a full URL, handles
- * both compressed and legacy uncompressed payloads, and parses it.
- */
 export function decodeData(encoded: string): any {
     let base64Str = encoded.trim();
 
     try {
-        // Smart URL parameter extraction
         if (base64Str.includes('import=')) {
-            // Append a dummy HTTPS origin if it's a relative path so the URL constructor doesn't panic
             const urlString = base64Str.startsWith('http') ? base64Str : `https://dummy.com/${base64Str.replace(/^\/?/, '')}`;
             const url = new URL(urlString);
             const importParam = url.searchParams.get('import');
-            if (importParam) {
-                base64Str = importParam;
-            }
+            if (importParam) base64Str = importParam;
         }
 
-        // Normalize Base64URL back to Standard Base64
         let normalizedBase64 = base64Str.replace(/-/g, '+').replace(/_/g, '/');
-        while (normalizedBase64.length % 4) {
-            normalizedBase64 += '=';
-        }
+        while (normalizedBase64.length % 4) normalizedBase64 += '=';
 
         const binString = atob(normalizedBase64);
         const bytes = new Uint8Array(binString.length);
-        for (let i = 0; i < binString.length; i++) {
-            bytes[i] = binString.charCodeAt(i);
-        }
-        const decompressed = unzlibSync(bytes);
-        return JSON.parse(strFromU8(decompressed));
+        for (let i = 0; i < binString.length; i++) bytes[i] = binString.charCodeAt(i);
 
+        return unminify(JSON.parse(strFromU8(unzlibSync(bytes))));
     } catch (e) {
         console.error("Decode error:", e);
         throw new Error("Invalid base64 string or URL.");
