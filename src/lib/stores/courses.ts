@@ -27,7 +27,7 @@ export const groupNameSchema = z
 
 // Validation for class sections & time slots
 export const daySlotSchema = z.object({
-    day: z.enum(['M', 'T', 'W', 'Th', 'F', 'S', 'Su']),
+    day: z.enum(['M', 'T', 'W', 'H', 'F', 'S', 'U']),
     startTime: z.string()
         .regex(/^([01]\d|2[0-3]):?([0-5]\d)$/, "Start time must be in HH:MM or HHMM format")
         .transform(val => val.length === 4 && !val.includes(':') ? `${val.slice(0,2)}:${val.slice(2,4)}` : val),
@@ -35,7 +35,7 @@ export const daySlotSchema = z.object({
         .regex(/^([01]\d|2[0-3]):?([0-5]\d)$/, "End time must be in HH:MM or HHMM format")
         .transform(val => val.length === 4 && !val.includes(':') ? `${val.slice(0,2)}:${val.slice(2,4)}` : val),
     room: z.string().optional(),
-    isOnline: z.boolean()
+    isOnline: z.boolean().default(false)
 }).refine(data => {
     const start = parseInt(data.startTime.replace(':', ''), 10);
     const end = parseInt(data.endTime.replace(':', ''), 10);
